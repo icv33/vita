@@ -3,17 +3,20 @@ import {
   busyMinutes,
   categoryDistribution,
   createEmptySchedule,
+  daySummary,
   daysByAvailability,
   formatDuration,
   freeGaps,
   freeMinutes,
   freeWindows,
+  isBlockEditable,
   longestFreeWindow,
   mergeIntervals,
   minutesToTime,
   overlaps,
   sortBlocks,
   timeToMinutes,
+  weekTotals,
 } from '@/utils/calendar';
 
 const H = (h: number, m = 0) => h * 60 + m;
@@ -117,5 +120,35 @@ describe('week-level queries', () => {
     // Monday is almost fully booked, so it should rank last.
     expect(ranked[ranked.length - 1].day).toBe('monday');
     expect(ranked[0].freeMinutes).toBeGreaterThan(ranked[ranked.length - 1].freeMinutes);
+  });
+});
+
+describe('daySummary and weekTotals', () => {
+  it('daySummary aggregates blocks, busy/free and the longest free window', () => {
+    const schedule = createEmptySchedule('t', 'UTC');
+    schedule.blocks = [block('monday', H(9), H(12)), block('monday', H(13), H(14)), block('tuesday', H(9), H(10))];
+    const mon = daySummary(schedule, 'monday');
+    expect(mon.count).toBe(2);
+    expect(mon.busyMinutes).toBe(240);
+    expect(mon.freeMinutes).toBe(720);
+    expect(mon.longestFree).toEqual({ startMinutes: H(14), endMinutes: H(23) });
+    expect(daySummary(schedule, 'wednesday').count).toBe(0);
+  });
+
+  it('weekTotals sums the week and finds the most-available day', () => {
+    const schedule = createEmptySchedule('t', 'UTC');
+    schedule.blocks = [block('monday', H(7), H(22)), block('tuesday', H(9), H(10))];
+    const totals = weekTotals(schedule);
+    expect(totals.totalBlocks).toBe(2);
+    expect(totals.totalBusyMinutes).toBe(900 + 60);
+    // Monday is the busiest, so it is never the most available.
+    expect(totals.mostAvailableDay).not.toBe('monday');
+  });
+});
+
+describe('isBlockEditable', () => {
+  it('is true for Vita blocks and false for read-only ones', () => {
+    expect(isBlockEditable(block('monday', H(9), H(10)))).toBe(true);
+    expect(isBlockEditable({ ...block('monday', H(9), H(10)), source: 'google', readOnly: true })).toBe(false);
   });
 });
