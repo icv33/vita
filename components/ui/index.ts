@@ -12,7 +12,7 @@ export type { ButtonProps, ButtonVariant, ButtonSize } from './button';
 export { Card } from './card';
 export type { CardProps } from './card';
 export { Field } from './field';
-export type { FieldProps } from './field';
+export type { FieldProps, FieldVariant } from './field';
 export { Selector } from './selector';
 export type { SelectorProps, SelectorOption } from './selector';
 export { ProgressBar } from './progress-bar';

@@ -1,5 +1,5 @@
 import { Redirect, useRouter } from 'expo-router';
-import { Alert } from 'react-native';
+import { Alert, StyleSheet } from 'react-native';
 import Animated, { FadeIn } from 'react-native-reanimated';
 
 import { ReviewStep, StepLayout } from '@/components/onboarding';
@@ -85,9 +85,14 @@ export default function Questionnaire() {
       onContinue={() => void goNext()}
       continueLabel={returnToReview ? 'Guardar' : 'Continuar'}
       canContinue={isStepComplete(stepId, answers)}>
-      <Animated.View key={stepId} entering={FadeIn.duration(200)}>
+      <Animated.View key={stepId} entering={FadeIn.duration(200)} style={styles.stepContent}>
         <StepComponent answers={answers} update={setAnswers} />
       </Animated.View>
     </StepLayout>
   );
 }
+
+const styles = StyleSheet.create({
+  // Consistent vertical spacing between a step's sub-questions/fields.
+  stepContent: { gap: 20 },
+});

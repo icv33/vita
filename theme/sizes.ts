@@ -8,7 +8,12 @@ export const sizes = {
   buttonSm: 40,
   buttonMd: 48,
   buttonLg: 56,
-  fieldHeight: 52,
+  /** Single-line input height (default variant). */
+  fieldHeight: 56,
+  /** Single-line input height (compact variant); never below the touch minimum. */
+  fieldHeightCompact: 48,
+  /** Minimum height for the multiline variant. */
+  fieldMinHeightMultiline: 120,
 
   // Icons
   iconXs: 14,
