@@ -1,33 +1,86 @@
+import Ionicons from '@expo/vector-icons/Ionicons';
 import { Tabs } from 'expo-router';
-import React from 'react';
 
 import { HapticTab } from '@/components/haptic-tab';
-import { IconSymbol } from '@/components/ui/icon-symbol';
-import { Colors } from '@/constants/theme';
-import { useColorScheme } from '@/hooks/use-color-scheme';
+import { useTheme } from '@/hooks/use-theme';
+import { icons } from '@/theme';
 
-export default function TabLayout() {
-  const colorScheme = useColorScheme();
+/**
+ * Main app tab bar: Inicio, Calendario, Entreno, Comidas, Progreso.
+ * Matches the primary navigation from the product reference.
+ */
+export default function TabsLayout() {
+  const theme = useTheme();
 
   return (
     <Tabs
       screenOptions={{
-        tabBarActiveTintColor: Colors[colorScheme ?? 'light'].tint,
         headerShown: false,
         tabBarButton: HapticTab,
+        tabBarActiveTintColor: theme.colors.tabIconSelected,
+        tabBarInactiveTintColor: theme.colors.tabIconDefault,
+        tabBarStyle: {
+          backgroundColor: theme.colors.tabBar,
+          borderTopColor: theme.colors.border,
+        },
+        tabBarLabelStyle: { fontSize: 11, fontWeight: '500' },
+        sceneStyle: { backgroundColor: theme.colors.background },
       }}>
       <Tabs.Screen
         name="index"
         options={{
-          title: 'Home',
-          tabBarIcon: ({ color }) => <IconSymbol size={28} name="house.fill" color={color} />,
+          title: 'Inicio',
+          tabBarIcon: ({ color, size, focused }) => (
+            <Ionicons name={focused ? icons.home : icons.homeOutline} size={size} color={color} />
+          ),
         }}
       />
       <Tabs.Screen
-        name="explore"
+        name="calendar"
         options={{
-          title: 'Explore',
-          tabBarIcon: ({ color }) => <IconSymbol size={28} name="paperplane.fill" color={color} />,
+          title: 'Calendario',
+          tabBarIcon: ({ color, size, focused }) => (
+            <Ionicons
+              name={focused ? icons.calendar : icons.calendarOutline}
+              size={size}
+              color={color}
+            />
+          ),
+        }}
+      />
+      <Tabs.Screen
+        name="training"
+        options={{
+          title: 'Entreno',
+          tabBarIcon: ({ color, size, focused }) => (
+            <Ionicons
+              name={focused ? icons.training : icons.trainingOutline}
+              size={size}
+              color={color}
+            />
+          ),
+        }}
+      />
+      <Tabs.Screen
+        name="meals"
+        options={{
+          title: 'Comidas',
+          tabBarIcon: ({ color, size, focused }) => (
+            <Ionicons name={focused ? icons.meals : icons.mealsOutline} size={size} color={color} />
+          ),
+        }}
+      />
+      <Tabs.Screen
+        name="progress"
+        options={{
+          title: 'Progreso',
+          tabBarIcon: ({ color, size, focused }) => (
+            <Ionicons
+              name={focused ? icons.progress : icons.progressOutline}
+              size={size}
+              color={color}
+            />
+          ),
         }}
       />
     </Tabs>

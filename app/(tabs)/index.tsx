@@ -1,98 +1,94 @@
-import { Image } from 'expo-image';
-import { Platform, StyleSheet } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 
-import { HelloWave } from '@/components/hello-wave';
-import ParallaxScrollView from '@/components/parallax-scroll-view';
-import { ThemedText } from '@/components/themed-text';
-import { ThemedView } from '@/components/themed-view';
-import { Link } from 'expo-router';
+import { Button, Card, Header, Icon, Screen, Text } from '@/components/ui';
+import { useTheme } from '@/hooks/use-theme';
+import { useAppStore } from '@/store';
+import { demoTargets } from '@/data';
+import { todayWeekday } from '@/utils';
+import { weekdayLabel } from '@/utils/date';
+import { formatCalories, formatGrams, formatWeight } from '@/utils/format';
+import type { IconName } from '@/theme';
 
+/**
+ * Inicio — home dashboard. Shows today's targets from demo data and (in dev)
+ * a control to reset onboarding. Real "today" content arrives with the plan
+ * generator.
+ */
 export default function HomeScreen() {
-  return (
-    <ParallaxScrollView
-      headerBackgroundColor={{ light: '#A1CEDC', dark: '#1D3D47' }}
-      headerImage={
-        <Image
-          source={require('@/assets/images/partial-react-logo.png')}
-          style={styles.reactLogo}
-        />
-      }>
-      <ThemedView style={styles.titleContainer}>
-        <ThemedText type="title">Welcome!</ThemedText>
-        <HelloWave />
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 1: Try it</ThemedText>
-        <ThemedText>
-          Edit <ThemedText type="defaultSemiBold">app/(tabs)/index.tsx</ThemedText> to see changes.
-          Press{' '}
-          <ThemedText type="defaultSemiBold">
-            {Platform.select({
-              ios: 'cmd + d',
-              android: 'cmd + m',
-              web: 'F12',
-            })}
-          </ThemedText>{' '}
-          to open developer tools.
-        </ThemedText>
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <Link href="/modal">
-          <Link.Trigger>
-            <ThemedText type="subtitle">Step 2: Explore</ThemedText>
-          </Link.Trigger>
-          <Link.Preview />
-          <Link.Menu>
-            <Link.MenuAction title="Action" icon="cube" onPress={() => alert('Action pressed')} />
-            <Link.MenuAction
-              title="Share"
-              icon="square.and.arrow.up"
-              onPress={() => alert('Share pressed')}
-            />
-            <Link.Menu title="More" icon="ellipsis">
-              <Link.MenuAction
-                title="Delete"
-                icon="trash"
-                destructive
-                onPress={() => alert('Delete pressed')}
-              />
-            </Link.Menu>
-          </Link.Menu>
-        </Link>
+  const theme = useTheme();
+  const resetOnboarding = useAppStore((s) => s.resetOnboarding);
 
-        <ThemedText>
-          {`Tap the Explore tab to learn more about what's included in this starter app.`}
-        </ThemedText>
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 3: Get a fresh start</ThemedText>
-        <ThemedText>
-          {`When you're ready, run `}
-          <ThemedText type="defaultSemiBold">npm run reset-project</ThemedText> to get a fresh{' '}
-          <ThemedText type="defaultSemiBold">app</ThemedText> directory. This will move the current{' '}
-          <ThemedText type="defaultSemiBold">app</ThemedText> to{' '}
-          <ThemedText type="defaultSemiBold">app-example</ThemedText>.
-        </ThemedText>
-      </ThemedView>
-    </ParallaxScrollView>
+  const targets: { icon: IconName; label: string; value: string; tint: string }[] = [
+    { icon: 'flame', label: 'Calorías', value: formatCalories(demoTargets.calories), tint: theme.colors.primary },
+    { icon: 'meals', label: 'Proteínas', value: formatGrams(demoTargets.proteinG), tint: theme.colors.accent },
+    { icon: 'progress', label: 'Pasos', value: demoTargets.steps.toLocaleString('es-ES'), tint: theme.colors.warning },
+    { icon: 'water', label: 'Agua', value: `${demoTargets.waterL.toLocaleString('es-ES')} L`, tint: theme.colors.primary },
+  ];
+
+  return (
+    <Screen scroll>
+      <Header title="Hola 👋" subtitle={`Tu plan para hoy · ${weekdayLabel(todayWeekday())}`} />
+
+      <Card style={styles.heroCard}>
+        <Text variant="label" color="textMuted">
+          OBJETIVO ACTUAL
+        </Text>
+        <Text variant="heading">Perder grasa</Text>
+        <View style={styles.heroRow}>
+          <Text variant="body" color="textMuted">
+            Peso actual
+          </Text>
+          <Text variant="bodyStrong">{formatWeight(62)}</Text>
+        </View>
+      </Card>
+
+      <Text variant="subheading" style={styles.sectionTitle}>
+        Objetivos diarios
+      </Text>
+      <View style={styles.grid}>
+        {targets.map((t) => (
+          <Card key={t.label} style={styles.statCard}>
+            <View
+              style={[styles.statIcon, { backgroundColor: theme.colors.surfaceAlt, borderRadius: theme.radii.md }]}>
+              <Icon name={t.icon} size={theme.sizes.iconSm} color={t.tint} />
+            </View>
+            <Text variant="caption" color="textMuted">
+              {t.label}
+            </Text>
+            <Text variant="bodyStrong">{t.value}</Text>
+          </Card>
+        ))}
+      </View>
+
+      {__DEV__ ? (
+        <Card style={styles.devCard} elevation="none">
+          <Text variant="label" color="textMuted">
+            HERRAMIENTAS DE DESARROLLO
+          </Text>
+          <Text variant="caption" color="textSubtle">
+            Solo visible en modo desarrollo.
+          </Text>
+          <Button
+            title="Reiniciar onboarding"
+            variant="outline"
+            size="sm"
+            icon="refresh"
+            onPress={resetOnboarding}
+            style={styles.devButton}
+          />
+        </Card>
+      ) : null}
+    </Screen>
   );
 }
 
 const styles = StyleSheet.create({
-  titleContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-  },
-  stepContainer: {
-    gap: 8,
-    marginBottom: 8,
-  },
-  reactLogo: {
-    height: 178,
-    width: 290,
-    bottom: 0,
-    left: 0,
-    position: 'absolute',
-  },
+  heroCard: { gap: 4, marginTop: 4 },
+  heroRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginTop: 8 },
+  sectionTitle: { marginTop: 24, marginBottom: 12 },
+  grid: { flexDirection: 'row', flexWrap: 'wrap', gap: 12 },
+  statCard: { width: '47%', flexGrow: 1, gap: 6 },
+  statIcon: { width: 32, height: 32, alignItems: 'center', justifyContent: 'center' },
+  devCard: { marginTop: 28, gap: 6 },
+  devButton: { marginTop: 8 },
 });
