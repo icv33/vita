@@ -1,50 +1,49 @@
-# Welcome to your Expo app 👋
+# Vita
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+> _Tu plan. Tu tiempo. Tu cambio._
 
-## Get started
+App móvil de planificación personalizada de **entrenamiento, alimentación y horarios**,
+construida con Expo + React Native + Expo Router.
 
-1. Install dependencies
+## Requisitos
 
-   ```bash
-   npm install
-   ```
+- Node 20+ y npm
+- La app **Expo Go** en tu iPhone/Android (o un simulador iOS)
 
-2. Start the app
-
-   ```bash
-   npx expo start
-   ```
-
-In the output, you'll find options to open the app in a
-
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
-
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
-
-## Get a fresh project
-
-When you're ready, run:
+## Puesta en marcha
 
 ```bash
-npm run reset-project
+npm install
+npm start        # arranca Metro; escanea el QR con Expo Go
 ```
 
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
+Otros comandos:
 
-## Learn more
+```bash
+npm run ios        # abrir en simulador iOS
+npm run typecheck  # comprobación de TypeScript
+npm run lint       # ESLint
+npm test           # pruebas (Jest)
+npm run doctor     # npx expo-doctor
+```
 
-To learn more about developing your project with Expo, look at the following resources:
+## Estructura
 
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
+Rutas en `app/` (Expo Router). Código compartido en carpetas de la raíz con alias `@/`
+(`components/ui`, `theme`, `store`, `storage`, `services`, `types`, `utils`,
+`validation`, `data`, `constants`).
 
-## Join the community
+## Documentación
 
-Join our community of developers creating universal apps.
+- [`CLAUDE.md`](CLAUDE.md) — guía de trabajo y convenciones
+- [`docs/PRODUCT_SPEC.md`](docs/PRODUCT_SPEC.md) — visión y funcionalidades
+- [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) — arquitectura técnica
+- [`docs/DATA_MODEL.md`](docs/DATA_MODEL.md) — modelo de dominio
+- [`docs/ROADMAP.md`](docs/ROADMAP.md) — fases del producto
+- [`docs/IMPLEMENTATION_PLAN.md`](docs/IMPLEMENTATION_PLAN.md) — plan de implementación
 
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+## Estado
+
+Fase 0 (base) completada: sistema de diseño, kit de UI, navegación (onboarding + 5
+pestañas), persistencia del onboarding y pantallas provisionales. Ver el roadmap para lo
+que viene.
