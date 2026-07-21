@@ -25,6 +25,14 @@ export type ActivityCategory =
 /** Where the activity happens (optional). */
 export type ActivityLocation = 'home' | 'university' | 'work' | 'gym' | 'outdoor' | 'other';
 
+/**
+ * Where a block came from. Only `vita` is used today; the others are declared
+ * now so the model is ready for future calendar integrations (Apple/Google/
+ * Outlook) without another migration. External blocks will be read-only and
+ * only used to block availability — never converted into editable Vita blocks.
+ */
+export type ActivitySource = 'vita' | 'device' | 'google' | 'outlook';
+
 /** A single time block on one day of the week. */
 export type ActivityBlock = {
   id: ID;
@@ -39,6 +47,19 @@ export type ActivityBlock = {
   notes?: string;
   /** Whether the block repeats every week (all blocks are weekly for now). */
   isRecurringWeekly: boolean;
+
+  // ── Source (integration-ready; no sync implemented yet) ──────────────────
+  /** Origin of the block. Defaults to `vita`; set on every Vita-created block. */
+  source: ActivitySource;
+  /** Whether Vita may edit/delete it. External blocks are read-only. */
+  readOnly?: boolean;
+  /** Identifier of the event in the external calendar (future). */
+  externalEventId?: string;
+  /** Identifier of the external calendar it belongs to (future). */
+  externalCalendarId?: string;
+  /** Last time it was synced from its external source (future). */
+  lastSyncedAt?: string;
+
   createdAt: string;
   updatedAt: string;
 };
@@ -55,11 +76,18 @@ export type WeekSchedule = {
   updatedAt: string;
 };
 
+/** The two mobile calendar layouts. */
+export type CalendarView = 'day' | 'week';
+
 /** Calendar-specific settings/meta persisted separately from the schedule. */
 export type CalendarMeta = {
   schemaVersion: number;
   /** Whether the first-run calendar intro has been dealt with. */
   setupCompleted: boolean;
+  /** The last selected mobile view (day/week). Restored on relaunch. */
+  view: CalendarView;
   /** The last day the user was viewing (to restore selection). */
   lastSelectedDay?: Weekday;
+  /** The last displayed week, relative to the current week (0 = this week). */
+  lastWeekOffset: number;
 };

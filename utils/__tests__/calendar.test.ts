@@ -26,6 +26,7 @@ function block(day: ActivityBlock['dayOfWeek'], start: number, end: number, cate
     endMinutes: end,
     category,
     isRecurringWeekly: true,
+    source: 'vita',
     createdAt: '',
     updatedAt: '',
   };

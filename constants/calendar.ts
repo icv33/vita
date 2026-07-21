@@ -23,8 +23,10 @@ export const CALENDAR_WINDOW_MIN = CALENDAR_DAY_END_MIN - CALENDAR_DAY_START_MIN
 
 // ── Schema versions (for migrations) ─────────────────────────────────────────
 
-export const SCHEDULE_SCHEMA_VERSION = 1;
-export const CALENDAR_META_SCHEMA_VERSION = 1;
+/** v2 adds `source`/`readOnly` (integration-ready) to blocks. */
+export const SCHEDULE_SCHEMA_VERSION = 2;
+/** v2 adds `view`/`lastWeekOffset` to the calendar meta. */
+export const CALENDAR_META_SCHEMA_VERSION = 2;
 
 // ── Categories ───────────────────────────────────────────────────────────────
 
@@ -40,16 +42,16 @@ export type CategoryMeta = {
 };
 
 export const ACTIVITY_CATEGORIES = [
-  { value: 'work', label: 'Trabajo', icon: 'briefcase', color: '#2E5BFF', bg: 'rgba(46, 91, 255, 0.14)', description: 'Tu jornada laboral' },
-  { value: 'university', label: 'Universidad', icon: 'school', color: '#7C5CFF', bg: 'rgba(124, 92, 255, 0.14)', description: 'Clases y estudio' },
-  { value: 'school', label: 'Colegio', icon: 'book', color: '#12B5A5', bg: 'rgba(18, 181, 165, 0.15)', description: 'Horario escolar' },
-  { value: 'class', label: 'Clases', icon: 'easel', color: '#4C6FFF', bg: 'rgba(76, 111, 255, 0.14)', description: 'Clases o academias' },
-  { value: 'commute', label: 'Desplazamiento', icon: 'car', color: '#64748B', bg: 'rgba(100, 116, 139, 0.16)', description: 'Trayectos y viajes' },
-  { value: 'meal', label: 'Comida', icon: 'meals', color: '#F5A524', bg: 'rgba(245, 165, 36, 0.16)', description: 'Comidas del día' },
-  { value: 'training', label: 'Entrenamiento', icon: 'training', color: '#16A34A', bg: 'rgba(22, 163, 74, 0.15)', description: 'Sesiones de entreno' },
-  { value: 'sleep', label: 'Sueño', icon: 'bed', color: '#5B6472', bg: 'rgba(91, 100, 114, 0.16)', description: 'Descanso nocturno' },
-  { value: 'unavailable', label: 'No disponible', icon: 'ban', color: '#E5484D', bg: 'rgba(229, 72, 77, 0.13)', description: 'Tiempo bloqueado' },
-  { value: 'other', label: 'Otro', icon: 'ellipsis', color: '#9AA1AD', bg: 'rgba(154, 161, 173, 0.18)', description: 'Cualquier otra cosa' },
+  { value: 'work', label: 'Trabajo', icon: 'briefcase', color: '#3B6FF6', bg: 'rgba(59, 111, 246, 0.13)', description: 'Tu jornada laboral' },
+  { value: 'university', label: 'Universidad', icon: 'school', color: '#14B8A6', bg: 'rgba(20, 184, 166, 0.15)', description: 'Clases y estudio' },
+  { value: 'school', label: 'Colegio', icon: 'book', color: '#0891B2', bg: 'rgba(8, 145, 178, 0.14)', description: 'Horario escolar' },
+  { value: 'class', label: 'Clases', icon: 'easel', color: '#6366F1', bg: 'rgba(99, 102, 241, 0.14)', description: 'Clases o academias' },
+  { value: 'commute', label: 'Desplazamiento', icon: 'car', color: '#F59E0B', bg: 'rgba(245, 158, 11, 0.16)', description: 'Trayectos y viajes' },
+  { value: 'meal', label: 'Comida', icon: 'meals', color: '#22C55E', bg: 'rgba(34, 197, 94, 0.15)', description: 'Comidas del día' },
+  { value: 'training', label: 'Entrenamiento', icon: 'training', color: '#0E9F6E', bg: 'rgba(14, 159, 110, 0.16)', description: 'Sesiones de entreno' },
+  { value: 'sleep', label: 'Sueño', icon: 'bed', color: '#64748B', bg: 'rgba(100, 116, 139, 0.15)', description: 'Descanso nocturno' },
+  { value: 'unavailable', label: 'No disponible', icon: 'ban', color: '#6B7280', bg: 'rgba(107, 114, 128, 0.16)', description: 'Tiempo bloqueado' },
+  { value: 'other', label: 'Otro', icon: 'ellipsis', color: '#8B5CF6', bg: 'rgba(139, 92, 246, 0.15)', description: 'Cualquier otra cosa' },
 ] as const satisfies readonly CategoryMeta[];
 
 const CATEGORY_BY_VALUE: Record<ActivityCategory, CategoryMeta> = ACTIVITY_CATEGORIES.reduce(

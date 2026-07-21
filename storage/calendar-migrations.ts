@@ -1,10 +1,22 @@
 /**
  * Pure schema migrations for the calendar. Kept separate and side-effect-free so
  * they can be unit tested and evolved as the schema version grows.
+ *
+ * Schedule versions:
+ *  - v0 (legacy): `{ weekStart, blocks:[{ kind, weekday, start:"HH:mm", end }] }`.
+ *  - v1: minutes-from-midnight blocks with `category` (no `source`).
+ *  - v2 (current): adds `source`/`readOnly` (integration-ready).
  */
 
 import { CALENDAR_META_SCHEMA_VERSION, SCHEDULE_SCHEMA_VERSION } from '@/constants/calendar';
-import type { ActivityBlock, ActivityCategory, CalendarMeta, WeekSchedule, Weekday } from '@/types';
+import type {
+  ActivityBlock,
+  ActivityCategory,
+  CalendarMeta,
+  CalendarView,
+  WeekSchedule,
+  Weekday,
+} from '@/types';
 import { timeToMinutes } from '@/utils/calendar';
 
 /** Legacy (v0) block shape: HH:mm strings + `kind`. */
@@ -37,16 +49,62 @@ function isObject(value: unknown): value is Record<string, unknown> {
 }
 
 /**
+ * Normalise a stored block to the current shape: every block gets a `source`
+ * (defaulting to `vita`, since anything created before v2 was made in Vita) and
+ * a boolean `isRecurringWeekly`. Vita blocks are editable (no `readOnly`).
+ */
+function normaliseBlock(raw: Record<string, unknown>): ActivityBlock | null {
+  const block = raw as Partial<ActivityBlock>;
+  if (
+    typeof block.startMinutes !== 'number' ||
+    typeof block.endMinutes !== 'number' ||
+    block.endMinutes <= block.startMinutes ||
+    !block.dayOfWeek ||
+    !block.category
+  ) {
+    return null;
+  }
+  const ts = nowISO();
+  return {
+    id: block.id ?? `mig_${Math.random().toString(36).slice(2, 9)}`,
+    dayOfWeek: block.dayOfWeek,
+    startMinutes: block.startMinutes,
+    endMinutes: block.endMinutes,
+    category: block.category,
+    title: block.title,
+    location: block.location,
+    notes: block.notes,
+    isRecurringWeekly: block.isRecurringWeekly ?? true,
+    source: block.source ?? 'vita',
+    readOnly: block.readOnly,
+    externalEventId: block.externalEventId,
+    externalCalendarId: block.externalCalendarId,
+    lastSyncedAt: block.lastSyncedAt,
+    createdAt: block.createdAt ?? ts,
+    updatedAt: block.updatedAt ?? ts,
+  };
+}
+
+/**
  * Bring any persisted schedule up to the current schema version, or return null
- * when there's nothing usable. Handles the current version (pass-through), the
- * legacy v0 shape (`weekStart` + HH:mm `start`/`end` + `kind`) and unknown data.
+ * when there's nothing usable.
  */
 export function migrateSchedule(raw: unknown): WeekSchedule | null {
   if (!isObject(raw)) return null;
 
-  // Current version: trust the shape.
-  if (raw.schemaVersion === SCHEDULE_SCHEMA_VERSION && Array.isArray(raw.blocks)) {
-    return raw as unknown as WeekSchedule;
+  // v1 / v2: blocks already use minutes + category. Normalise (adds `source`).
+  if (Array.isArray(raw.blocks) && typeof raw.schemaVersion === 'number') {
+    const blocks = (raw.blocks as Record<string, unknown>[])
+      .map(normaliseBlock)
+      .filter((b): b is ActivityBlock => b !== null);
+    return {
+      schemaVersion: SCHEDULE_SCHEMA_VERSION,
+      weekStartsOn: (raw.weekStartsOn as Weekday) ?? 'monday',
+      timezone: (raw.timezone as string) ?? 'UTC',
+      blocks,
+      createdAt: (raw.createdAt as string) ?? nowISO(),
+      updatedAt: nowISO(),
+    };
   }
 
   // Legacy v0: { weekStart, blocks: [{ kind, weekday, start, end }] }.
@@ -66,6 +124,7 @@ export function migrateSchedule(raw: unknown): WeekSchedule | null {
           category,
           title: b.title,
           isRecurringWeekly: true,
+          source: 'vita',
           createdAt: ts,
           updatedAt: ts,
         };
@@ -85,13 +144,24 @@ export function migrateSchedule(raw: unknown): WeekSchedule | null {
   return null;
 }
 
+const CALENDAR_VIEWS: CalendarView[] = ['day', 'week'];
+
 /** Bring persisted calendar meta up to the current version (defaults on miss). */
 export function migrateMeta(raw: unknown): CalendarMeta {
-  const base: CalendarMeta = { schemaVersion: CALENDAR_META_SCHEMA_VERSION, setupCompleted: false };
+  const base: CalendarMeta = {
+    schemaVersion: CALENDAR_META_SCHEMA_VERSION,
+    setupCompleted: false,
+    view: 'day',
+    lastWeekOffset: 0,
+  };
   if (!isObject(raw)) return base;
+  const view = raw.view as CalendarView | undefined;
+  const offset = raw.lastWeekOffset;
   return {
     schemaVersion: CALENDAR_META_SCHEMA_VERSION,
     setupCompleted: raw.setupCompleted === true,
+    view: view && CALENDAR_VIEWS.includes(view) ? view : 'day',
     lastSelectedDay: (raw.lastSelectedDay as Weekday | undefined) ?? undefined,
+    lastWeekOffset: typeof offset === 'number' ? offset : 0,
   };
 }

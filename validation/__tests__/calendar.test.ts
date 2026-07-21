@@ -11,6 +11,7 @@ function block(id: string, start: number, end: number): ActivityBlock {
     endMinutes: end,
     category: 'work',
     isRecurringWeekly: true,
+    source: 'vita',
     createdAt: '',
     updatedAt: '',
   };

@@ -249,3 +249,55 @@ export function daysByAvailability(schedule: WeekSchedule | null): { day: Weekda
     freeMinutes: freeMinutes(blocksForDay(schedule, day)),
   })).sort((a, b) => b.freeMinutes - a.freeMinutes);
 }
+
+/** Whether Vita may edit/delete this block (external blocks are read-only). */
+export function isBlockEditable(block: ActivityBlock): boolean {
+  return !block.readOnly;
+}
+
+export type DaySummary = {
+  blocks: ActivityBlock[];
+  count: number;
+  busyMinutes: number;
+  freeMinutes: number;
+  longestFree: Interval | null;
+};
+
+/** Everything the UI needs for a single day — computed once, no duplication. */
+export function daySummary(schedule: WeekSchedule | null, day: Weekday): DaySummary {
+  const blocks = blocksForDay(schedule, day);
+  return {
+    blocks,
+    count: blocks.length,
+    busyMinutes: busyMinutes(blocks),
+    freeMinutes: freeMinutes(blocks),
+    longestFree: longestFreeWindow(blocks),
+  };
+}
+
+export type WeekTotals = {
+  totalBusyMinutes: number;
+  totalFreeMinutes: number;
+  totalBlocks: number;
+  mostAvailableDay: Weekday | null;
+};
+
+/** Week-level totals for the summary card. */
+export function weekTotals(schedule: WeekSchedule | null): WeekTotals {
+  let totalBusy = 0;
+  let totalFree = 0;
+  let totalBlocks = 0;
+  for (const day of WEEKDAYS) {
+    const dayBlocks = blocksForDay(schedule, day);
+    totalBusy += busyMinutes(dayBlocks);
+    totalFree += freeMinutes(dayBlocks);
+    totalBlocks += dayBlocks.length;
+  }
+  const ranked = daysByAvailability(schedule);
+  return {
+    totalBusyMinutes: totalBusy,
+    totalFreeMinutes: totalFree,
+    totalBlocks,
+    mostAvailableDay: ranked.length > 0 ? ranked[0].day : null,
+  };
+}
