@@ -1,3 +1,4 @@
+import { CALENDAR_DAY_END_MIN, CALENDAR_DAY_START_MIN } from '@/constants/calendar';
 import type { ActivityBlock } from '@/types';
 import {
   busyMinutes,
@@ -14,8 +15,11 @@ import {
   mergeIntervals,
   minutesToTime,
   overlaps,
+  shouldShowEmptyDayHint,
   sortBlocks,
+  suggestedNewBlockStart,
   timeToMinutes,
+  timelineHours,
   weekTotals,
 } from '@/utils/calendar';
 
@@ -150,5 +154,40 @@ describe('isBlockEditable', () => {
   it('is true for Vita blocks and false for read-only ones', () => {
     expect(isBlockEditable(block('monday', H(9), H(10)))).toBe(true);
     expect(isBlockEditable({ ...block('monday', H(9), H(10)), source: 'google', readOnly: true })).toBe(false);
+  });
+});
+
+describe('timelineHours', () => {
+  it('generates one mark per hour from 07:00 to 23:00 inclusive', () => {
+    const hours = timelineHours();
+    expect(hours[0]).toBe(CALENDAR_DAY_START_MIN);
+    expect(hours[hours.length - 1]).toBe(CALENDAR_DAY_END_MIN);
+    expect(hours).toHaveLength(17); // 07:00..23:00 inclusive
+    expect(hours.every((h, i) => i === 0 || h - hours[i - 1] === 60)).toBe(true);
+  });
+});
+
+describe('suggestedNewBlockStart', () => {
+  it('suggests the start of the first free gap on an empty day', () => {
+    expect(suggestedNewBlockStart([])).toBe(CALENDAR_DAY_START_MIN);
+  });
+
+  it('suggests the start of the first gap around existing blocks', () => {
+    const blocks = [block('monday', H(9), H(11))];
+    expect(suggestedNewBlockStart(blocks)).toBe(CALENDAR_DAY_START_MIN);
+  });
+
+  it('falls back to a mid-morning default when the day is fully booked', () => {
+    const blocks = [block('monday', H(7), H(23))];
+    expect(suggestedNewBlockStart(blocks)).toBe(CALENDAR_DAY_START_MIN + 120);
+  });
+});
+
+describe('shouldShowEmptyDayHint', () => {
+  it('shows only when there are no blocks and the hint has not been dismissed', () => {
+    expect(shouldShowEmptyDayHint(0, false)).toBe(true);
+    expect(shouldShowEmptyDayHint(1, false)).toBe(false);
+    expect(shouldShowEmptyDayHint(0, true)).toBe(false);
+    expect(shouldShowEmptyDayHint(2, true)).toBe(false);
   });
 });
