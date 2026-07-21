@@ -67,9 +67,29 @@ Cada catálogo es una tupla `as const` de `Option<T>` (`value`, `label`, `descri
 
 ## Calendario (`types/schedule.ts`)
 
-- `ActivityKind` — `work | university | training | meal | commute | class | free | sleep`.
-- `ActivityBlock` — bloque de tiempo (día, inicio, fin, ubicación opcional).
-- `WeekSchedule` — semana de bloques, indexada por el lunes (`weekStart`).
+Disponibilidad semanal interactiva. Los tiempos se guardan como **minutos desde
+medianoche** (`startMinutes`/`endMinutes`), no como cadenas, para que ordenar,
+detectar solapamientos y calcular huecos sean comparaciones de enteros.
+
+- `ActivityCategory` — `work | university | school | class | commute | meal | training |
+  sleep | unavailable | other`. Cada categoría tiene metadatos en
+  `constants/calendar.ts` (`ACTIVITY_CATEGORIES`): id estable, `label`, `icon`, `color`,
+  `bg` (relleno translúcido) y `description`.
+- `ActivityLocation` — `home | university | work | gym | outdoor | other`.
+- `ActivityBlock` — `id`, `dayOfWeek`, `startMinutes`, `endMinutes`, `category`, `title?`,
+  `location?`, `notes?`, `isRecurringWeekly`, `createdAt`, `updatedAt`.
+- `WeekSchedule` — `schemaVersion`, `weekStartsOn` (`monday`), `timezone`, `blocks`,
+  `createdAt`, `updatedAt`.
+- `CalendarMeta` — `schemaVersion`, `setupCompleted` (intro vista), `lastSelectedDay?`.
+
+**Ventana visible y franjas:** 07:00–23:00, franjas de 30 min, duración mínima 30 min
+(`constants/calendar.ts`). **Campos derivados no se guardan**: duración, huecos libres,
+tiempo ocupado/disponible y distribución por categoría se calculan en `utils/calendar.ts`.
+
+**Disponibilidad (`utils/calendar.ts`):** `sortBlocks`, `overlaps` (los bloques
+consecutivos que se tocan **no** solapan), `mergeIntervals`, `freeGaps`, `freeWindows`,
+`longestFreeWindow`, `busyMinutes`/`freeMinutes`, `categoryDistribution`,
+`daysByAvailability`. Serán la entrada del futuro generador de planes.
 
 ## Plan semanal (`types/plan.ts`)
 
@@ -93,8 +113,16 @@ Claves centralizadas en `constants/app.ts` (`STORAGE_KEYS`), namespaced con el p
 | `vita:onboarding:complete`   | `boolean` — onboarding finalizado          |
 | `vita:onboarding:draft`      | `OnboardingDraft` — borrador en curso      |
 | `vita:user:profile`          | `UserProfile` — perfil confirmado          |
+| `vita:calendar:schedule`     | `WeekSchedule` — horario semanal (migrado) |
+| `vita:calendar:meta`         | `CalendarMeta` — ajustes del calendario    |
 
 El acceso pasa siempre por `storage/` (wrapper tipado, fail-soft con JSON):
-`onboardingStorage` (flag + borrador) y `profileStorage` (perfil). El **borrador** y el
-**perfil confirmado** se mantienen separados a propósito (estado temporal vs. definitivo).
-`schemaVersion` en ambos permite futuras migraciones.
+`onboardingStorage` (flag + borrador), `profileStorage` (perfil) y `calendarStorage`
+(horario + meta). El **borrador** y el **perfil confirmado** se mantienen separados a
+propósito (estado temporal vs. definitivo). `schemaVersion` en todos permite migraciones.
+
+El calendario aplica una **migración de esquema** al leer (`storage/calendar-migrations.ts`,
+pura y testeada): versión actual → paso directo; formato legacy v0 (`weekStart` + horas
+`HH:mm` + `kind`) → v1 (minutos + `category`); datos desconocidos → `null`. El calendario
+tiene su **propio reset** (`useCalendarStore.resetCalendar`), y el **reinicio completo**
+(`resetEntireOnboardingFlow`) también lo limpia para simular una instalación nueva.

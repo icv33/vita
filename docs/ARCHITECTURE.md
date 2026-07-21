@@ -58,10 +58,13 @@ app/
   (tabs)/
     _layout.tsx      Tab bar: Inicio, Calendario, Entreno, Comidas, Progreso.
     index.tsx        Inicio
-    calendar.tsx     Calendario
+    calendar.tsx     Calendario (timeline interactivo)
     training.tsx     Entreno
     meals.tsx        Comidas
     progress.tsx     Progreso
+  calendar-editor.tsx   Editor de actividad (modal)
+  calendar-summary.tsx  Resumen semanal de disponibilidad
+  calendar-intro.tsx    Introducción del calendario (primera vez)
 ```
 
 **Gate de onboarding:** al arrancar, `_layout` mantiene el splash mientras
@@ -111,6 +114,51 @@ iconos: se usa el sistema de iconos (`theme/icons.ts`).
 
 **Componentes** (`components/onboarding/`): `StepLayout`, `ChipGroup`, `Stepper`,
 `TimeStepper`, `Checkbox`, `Question`, `ReviewStep` y un componente por paso en `steps/`.
+
+## Calendario de disponibilidad
+
+Calendario semanal interactivo donde el usuario indica cuándo trabaja, estudia, se
+desplaza, come o no está disponible. Esta fase **solo** recopila la disponibilidad; la
+colocación automática de entrenamientos/comidas llega después.
+
+**Experiencia móvil** (no una cuadrícula semanal estrecha): selector horizontal de días
+arriba, **timeline vertical** del día seleccionado (07:00–23:00, franjas de 30 min), bloques
+coloreados por categoría, indicador de hora actual, resumen inferior (ocupadas/disponibles/
+próxima/nº bloques) y FAB para añadir. Se cambia de día tocando el selector.
+
+**Crear/editar:** tocar una franja vacía (usa esa hora, propone 1 h) o el FAB abre el
+editor modal; tocar un bloque lo edita. El editor valida en vivo (ventana 07:00–23:00,
+duración mínima 30 min, solapamientos) y **no** deja guardar ni se cierra con errores.
+
+**Copiar/repetir:** copiar un bloque a otro día, copiar un día a varios, aplicar de lunes a
+viernes, vaciar un día, restablecer la semana. Las copias **detectan conflictos** y reportan
+los bloques omitidos (nunca sobrescriben en silencio); las acciones destructivas piden
+confirmación.
+
+**Capas:** dominio (`types/schedule.ts`), catálogos/constantes (`constants/calendar.ts`),
+lógica pura (`utils/calendar.ts`), validación (`validation/calendar.ts`), persistencia con
+migración (`storage/calendar-storage.ts`, `storage/calendar-migrations.ts`), estado
+(`store/calendar-store.ts`, escrituras inmediatas por acción discreta) y componentes
+(`components/calendar/`: `WeekDaySelector`, `DayTimeline`, `TimeGrid`, `ActivityBlockCard`,
+`CurrentTimeIndicator`, `ActivityEditor`, `CalendarActions`, `DayPickerSheet`, `Sheet`,
+`WeeklySummary`, `EmptyScheduleState`).
+
+**Primera vez:** al terminar el onboarding y pulsar "Crear mi semana", si el calendario aún
+no está configurado se muestra `calendar-intro` ("Configurar mi horario" / "Lo haré más
+tarde"); ambas marcan la intro como vista para no repetirla. Más tarde se accede desde la
+pestaña Calendario.
+
+**Limitación de gestos (documentada):** el arrastre para mover bloques o para seleccionar
+varias franjas manteniendo pulsado no se implementa aún, porque un drag fiable en Expo Go
+sin dependencias pesadas es arriesgado y puede bloquear el scroll. En su lugar: mover =
+ajustar la hora en el editor; crear un rango = elegir hora inicial (franja) + hora final en
+el formulario. La arquitectura (minutos, `moveBlock`, geometría en `components/calendar/
+layout.ts`) queda preparada para añadir gestos con `react-native-gesture-handler` /
+`reanimated` (ya presentes) en una iteración futura.
+
+**Semana:** el horario es una **semana tipo recurrente** (`isRecurringWeekly`). El paginador
+de semana de la cabecera cambia solo las fechas mostradas; los bloques se repiten. Por eso
+no hay "duplicar semana": no aplica a una única semana recurrente.
 
 ## Sistema de diseño (`theme/`)
 

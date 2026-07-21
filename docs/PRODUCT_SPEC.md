@@ -48,15 +48,21 @@ familiares, retos y comunidad, integración con entrenadores.
 
 ## Estado actual
 
-Implementada la **base técnica y visual** (sistema de diseño, kit de UI, navegación de 5
-pestañas, persistencia) y el **onboarding completo** (funcionalidad 1): cuestionario
-multi-paso, adaptativo, validado, con borrador persistente, resumen editable y conversión a
-un perfil confirmado. Inicio muestra datos reales del perfil y Progreso, estados vacíos
-cuidados hasta que exista un plan.
+Implementados la **base técnica y visual**, el **onboarding completo** (funcionalidad 1) y
+el **calendario interactivo de disponibilidad** (funcionalidad 2).
 
-El **calendario interactivo**, la **generación de planes** (entrenamientos, dietas,
-objetivos de calorías/macros, listas de la compra) y el **análisis** llegan en fases
-posteriores (ver `ROADMAP.md`). Las estimaciones energéticas aún **no** se calculan.
+- **Onboarding:** cuestionario multi-paso, adaptativo, validado, con borrador persistente,
+  resumen editable y conversión a un perfil confirmado. Inicio muestra datos reales del
+  perfil y Progreso muestra estados vacíos cuidados hasta que exista un plan.
+- **Calendario:** el usuario indica cuándo trabaja, estudia, se desplaza, come o no está
+  disponible sobre un timeline diario (07:00–23:00, franjas de 30 min): crear/editar/eliminar
+  bloques con validación y conflictos, categorías con color, copiar/repetir horarios, resumen
+  semanal de disponibilidad y una introducción de primera vez tras el onboarding. La
+  disponibilidad calculada alimentará al futuro generador de planes.
+
+La **generación de planes** (entrenamientos, dietas, objetivos de calorías/macros, listas de
+la compra) y el **análisis** llegan en fases posteriores (ver `ROADMAP.md`). Las estimaciones
+energéticas aún **no** se calculan.
 
 ## No objetivos de esta fase
 

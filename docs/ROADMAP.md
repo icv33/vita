@@ -27,16 +27,23 @@ Estado por fases. Esta entrega cubre la **Fase 0**.
 - [x] Inicio con datos reales; Progreso con estados vacíos (sin datos ficticios).
 - [x] Pruebas de validación, navegación, persistencia y conversión.
 
-## 🔜 Fase 2 — Calendario interactivo
+## ✅ Fase 2 — Calendario interactivo de disponibilidad
 
-- [ ] Vista semanal con bloques por día.
-- [ ] Crear / mover / eliminar bloques de actividad.
-- [ ] Disponibilidad como entrada del generador de plan.
+- [x] Mejora visual de los campos del onboarding (variantes default/compact/multiline).
+- [x] Timeline diario interactivo (07:00–23:00, franjas de 30 min) + selector de días.
+- [x] Crear / editar / eliminar bloques con validación (ventana, duración, solapamientos).
+- [x] Categorías con color e icono; ubicación, notas y repetición semanal.
+- [x] Copiar bloque/día, aplicar lunes–viernes, vaciar día, restablecer semana (con conflictos).
+- [x] Resumen semanal (ocupado/libre, distribución, días con más disponibilidad, huecos).
+- [x] Persistencia con versión + migración; reset de calendario y reset completo.
+- [x] Introducción de primera vez tras el onboarding.
+- [x] Lógica pura de disponibilidad (huecos, ventanas libres) lista para el generador.
 
-## Fase 3 — Plan semanal
+## 🔜 Fase 3 — Generación del plan semanal
 
-- [ ] Generación del `WeeklyPlan` (entrenamientos + comidas) a partir del perfil y el calendario.
-- [ ] Objetivos diarios y vista por día.
+- [ ] Generar `WeeklyPlan` (entrenamientos + comidas) a partir del `UserProfile` y la
+  disponibilidad del calendario (huecos y ventanas libres).
+- [ ] Objetivos diarios (calorías/macros) y vista por día.
 - [ ] Editar entrenamientos y cambiar comidas por alternativas.
 
 ## Fase 4 — Nutrición

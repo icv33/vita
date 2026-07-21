@@ -36,20 +36,22 @@ npm run doctor     # npx expo-doctor
 ## Estructura
 
 ```
-app/                 Rutas (Expo Router): index (gate), onboarding/, (tabs)/
-components/ui/        Kit de UI reutilizable (Screen, Text, Button, Card, …)
+app/                 Rutas (Expo Router): index (gate), onboarding/, (tabs)/,
+                     calendar-editor (modal), calendar-summary, calendar-intro
+components/ui/        Kit de UI reutilizable (Screen, Text, Button, Card, Field, …)
 components/onboarding/ Bloques del cuestionario (StepLayout, ChipGroup, …) + steps/
+components/calendar/  Bloques del calendario (DayTimeline, WeekDaySelector, …)
 components/           Componentes de mayor nivel no ligados a una ruta
 theme/               Sistema de diseño (colores, tipografía, espaciado, iconos, …)
 hooks/               Hooks reutilizables (useTheme, useColorScheme)
-store/               Estado global (Zustand): app-store, onboarding-store (borrador)
-storage/             Wrappers tipados sobre AsyncStorage (flag, borrador, perfil)
+store/               Estado global (Zustand): app-store, onboarding-store, calendar-store
+storage/             Wrappers tipados sobre AsyncStorage (flag, borrador, perfil, calendario)
 services/            Capa de datos (mock hoy; backend en el futuro)
-types/               Modelo de dominio (incluye onboarding)
-utils/               Utilidades puras (+ onboarding: navegación, resumen; haptics)
-validation/          Validadores puros (genéricos + por paso del onboarding)
+types/               Modelo de dominio (onboarding, calendario, …)
+utils/               Utilidades puras (+ onboarding y calendar: disponibilidad; haptics)
+validation/          Validadores puros (genéricos, onboarding y calendario)
 data/                Datos de demostración
-constants/           Constantes: claves de storage, catálogos y registro de pasos
+constants/           Constantes: claves de storage, catálogos, pasos y calendario
 docs/                Documentación del producto y la arquitectura
 ```
 
@@ -78,8 +80,21 @@ Alias de importación: **`@/`** apunta a la raíz del proyecto (p. ej.
   escribir `.expo/types` antes de cerrarlo; cerrarlo a media escritura corrompe el archivo
   y `tsc` fallará con rutas inválidas. Si pasa: `rm -rf .expo` y arranca Metro de nuevo.
 
+## Notas del calendario
+
+- Los tiempos se guardan como **minutos desde medianoche** (`startMinutes`/`endMinutes`),
+  no como cadenas. La ventana visible es **07:00–23:00**, en franjas de 30 min.
+- Toda la aritmética (orden, solapamientos, huecos, disponibilidad) vive en
+  `utils/calendar.ts` (pura, testeada); la validación en `validation/calendar.ts`.
+- `calendar-store` persiste de forma inmediata por acción discreta (no por pulsación);
+  el horario tiene su **propio reset** y el reinicio completo también lo limpia.
+- Es una **semana tipo recurrente**: el paginador de semana solo cambia las fechas
+  mostradas. **Gestos** (arrastrar bloques / selección multi-franja) no implementados aún:
+  mover = ajustar hora en el editor; se documenta como limitación conocida.
+- **Categorías** en `constants/calendar.ts` (id, label, icono, color, fondo, descripción).
+
 ## Alcance de esta fase
 
-Implementado el **onboarding completo**. **Sin** implementar todavía: calendario
-interactivo, generación de dietas/entrenamientos/objetivos, backend, pagos, APIs externas
-ni funciones médicas. Ver `docs/ROADMAP.md` e `docs/IMPLEMENTATION_PLAN.md`.
+Implementados el **onboarding completo** y el **calendario interactivo de disponibilidad**.
+**Sin** implementar todavía: generación de dietas/entrenamientos/objetivos, backend, pagos,
+APIs externas ni funciones médicas. Ver `docs/ROADMAP.md` e `docs/IMPLEMENTATION_PLAN.md`.

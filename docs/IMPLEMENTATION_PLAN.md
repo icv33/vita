@@ -2,6 +2,55 @@
 
 Registro de lo realizado por fases y cómo continuar.
 
+## Fase 2 — Campos del onboarding + calendario interactivo
+
+**Parte 1 — Campos del onboarding**
+
+- **Causa del exceso de espacio:** el `TextInput` de `Field` esparcía la tipografía `body`
+  (con `lineHeight: 24`) sobre un input de altura fija sin resetear el padding vertical.
+  Un `lineHeight` grande en un input de una línea infla la caja del texto y, con el padding
+  por defecto de cada plataforma, deja mucho hueco arriba/abajo y descentra el número.
+- **Solución:** variantes `default`/`compact`/`multiline` en `Field`. Las de una línea quitan
+  el `lineHeight`, ponen `paddingVertical: 0`, centran con la altura + `textAlignVertical`
+  y desactivan `includeFontPadding` en Android; altura 56 (mín. táctil 48), borde constante
+  (solo cambia el color al enfocar → sin saltos). Multiline más alto, top-aligned y con
+  crecimiento. Espaciado consistente entre sub-campos en el host del cuestionario.
+
+**Parte 2 — Calendario de disponibilidad**
+
+1. **Dominio** (`types/schedule.ts`): `ActivityBlock` (minutos desde medianoche), `WeekSchedule`
+   (versión, timezone, blocks, timestamps), `CalendarMeta`; categorías/ubicaciones en
+   `constants/calendar.ts` (id, label, icono, color, fondo, descripción).
+2. **Lógica pura** (`utils/calendar.ts`): orden, solapamientos (consecutivos no solapan),
+   `mergeIntervals`, huecos libres, ventanas libres, tiempo ocupado/libre, distribución por
+   categoría y días con más disponibilidad. **Validación** (`validation/calendar.ts`).
+3. **Persistencia** (`storage/calendar-storage.ts` + `calendar-migrations.ts`): horario + meta,
+   con **migración de esquema** (v0 `HH:mm`+`kind` → v1 minutos+`category`).
+4. **Estado** (`store/calendar-store.ts`): CRUD de bloques, mover, copiar a día / día a días
+   (con reporte de conflictos), vaciar día, restablecer semana, `setup`, reset de calendario.
+   Escrituras inmediatas por acción discreta. `resetEntireOnboardingFlow` también limpia el
+   calendario; hay un reset dev solo-calendario.
+5. **UI** (`components/calendar/`): `WeekDaySelector`, `DayTimeline`, `TimeGrid`,
+   `ActivityBlockCard`, `CurrentTimeIndicator`, `ActivityEditor`, `CalendarActions`,
+   `DayPickerSheet`, `Sheet`, `WeeklySummary`, `EmptyScheduleState`.
+6. **Rutas** (`app/`): pantalla Calendario (cabecera + paginador de semana, selector, timeline/
+   estado vacío, resumen inferior, FAB, menú de acciones), editor modal, resumen semanal e
+   introducción de primera vez (enlazada desde el final del onboarding).
+7. **Pruebas**: solapamientos, consecutivos, duración mínima, límites 07:00–23:00, orden,
+   huecos, ocupado/libre, copiar bloque/día, conflictos, eliminar día, persistir/hidratar,
+   migración, reset solo-calendario, reinicio completo, navegación tras onboarding.
+8. **Documentación** actualizada (este archivo + CLAUDE, PRODUCT_SPEC, ARCHITECTURE,
+   DATA_MODEL, ROADMAP).
+
+**Limitación conocida:** sin gestos de arrastre (mover bloque / seleccionar multi-franja
+manteniendo pulsado) para no arriesgar estabilidad/scroll en Expo Go sin dependencias
+pesadas; mover = ajustar hora en el editor. Arquitectura preparada (minutos, `moveBlock`,
+geometría en `components/calendar/layout.ts`) para añadir gestos con las libs ya presentes.
+
+**Cómo continuar (Fase 3 — Generación del plan semanal):** usar `UserProfile` + la
+disponibilidad del calendario (huecos y ventanas libres de `utils/calendar.ts`) para generar
+`WeeklyPlan` (entrenamientos + comidas) y los objetivos diarios.
+
 ## Fase 1 — Onboarding y cuestionario inicial
 
 **Qué se hizo**
