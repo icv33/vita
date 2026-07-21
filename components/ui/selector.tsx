@@ -8,6 +8,7 @@
 import { StyleSheet, View } from 'react-native';
 
 import { useTheme } from '@/hooks/use-theme';
+import type { IconName } from '@/theme';
 import { Card } from './card';
 import { Icon } from './icon';
 import { Text } from './text';
@@ -16,10 +17,11 @@ export type SelectorOption<T extends string> = {
   value: T;
   label: string;
   description?: string;
+  icon?: IconName;
 };
 
 export type SelectorProps<T extends string> = {
-  options: SelectorOption<T>[];
+  options: readonly SelectorOption<T>[];
   /** Selected value(s). Array enables multi-select. */
   value: T | T[] | null;
   onChange: (value: T) => void;
@@ -46,6 +48,22 @@ export function Selector<T extends string>({ options, value, onChange }: Selecto
               backgroundColor: selected ? theme.colors.primaryMuted : theme.colors.card,
             }}>
             <View style={styles.row}>
+              {option.icon ? (
+                <View
+                  style={[
+                    styles.leadingIcon,
+                    {
+                      backgroundColor: selected ? theme.colors.primary : theme.colors.surfaceAlt,
+                      borderRadius: theme.radii.md,
+                    },
+                  ]}>
+                  <Icon
+                    name={option.icon}
+                    size={theme.sizes.iconSm}
+                    color={selected ? theme.colors.onPrimary : theme.colors.textMuted}
+                  />
+                </View>
+              ) : null}
               <View style={styles.texts}>
                 <Text variant="bodyStrong" color={selected ? 'primary' : 'text'}>
                   {option.label}
@@ -79,6 +97,7 @@ export function Selector<T extends string>({ options, value, onChange }: Selecto
 const styles = StyleSheet.create({
   list: { gap: 10 },
   row: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 12 },
+  leadingIcon: { width: 36, height: 36, alignItems: 'center', justifyContent: 'center' },
   texts: { flex: 1, gap: 2 },
   indicator: {
     width: 24,

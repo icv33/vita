@@ -3,7 +3,7 @@
  * Optionally pressable (renders as a button with a pressed state).
  */
 
-import { Pressable, View, type ViewProps, type ViewStyle } from 'react-native';
+import { Pressable, View, type StyleProp, type ViewProps, type ViewStyle } from 'react-native';
 
 import { useTheme } from '@/hooks/use-theme';
 import type { ShadowToken } from '@/theme';
@@ -12,7 +12,7 @@ export type CardProps = ViewProps & {
   onPress?: () => void;
   padded?: boolean;
   elevation?: ShadowToken;
-  style?: ViewStyle;
+  style?: StyleProp<ViewStyle>;
 };
 
 export function Card({
