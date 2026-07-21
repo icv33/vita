@@ -13,7 +13,7 @@ import {
   CALENDAR_SLOT_MIN,
 } from '@/constants/calendar';
 import { useTheme } from '@/hooks/use-theme';
-import { minutesToTime } from '@/utils/calendar';
+import { minutesToTime, timelineHours } from '@/utils/calendar';
 import { GUTTER_WIDTH, minuteToY, SLOT_HEIGHT, TIMELINE_HEIGHT } from './layout';
 
 export type TimeGridProps = {
@@ -23,8 +23,7 @@ export type TimeGridProps = {
 export function TimeGrid({ onSlotPress }: TimeGridProps) {
   const theme = useTheme();
 
-  const hours: number[] = [];
-  for (let m = CALENDAR_DAY_START_MIN; m <= CALENDAR_DAY_END_MIN; m += 60) hours.push(m);
+  const hours = timelineHours();
 
   const slots: number[] = [];
   for (let m = CALENDAR_DAY_START_MIN; m < CALENDAR_DAY_END_MIN; m += CALENDAR_SLOT_MIN) slots.push(m);

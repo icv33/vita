@@ -226,6 +226,31 @@ export function nextBlock(blocks: readonly ActivityBlock[], fromMinutes: number)
   return sorted.find((b) => b.startMinutes >= fromMinutes) ?? null;
 }
 
+/** Hour marks (07:00, 08:00 … 23:00) for the visible timeline window. */
+export function timelineHours(
+  windowStart: number = CALENDAR_DAY_START_MIN,
+  windowEnd: number = CALENDAR_DAY_END_MIN,
+): number[] {
+  const hours: number[] = [];
+  for (let m = windowStart; m <= windowEnd; m += 60) hours.push(m);
+  return hours;
+}
+
+/**
+ * Suggested start time for a new block: the first free gap of the day, or a
+ * sensible fallback (mid-morning) when the day is fully booked. Drives both the
+ * FAB and the per-day "add" affordance so they share one decision.
+ */
+export function suggestedNewBlockStart(blocks: readonly Interval[]): number {
+  const gap = freeGaps(blocks)[0];
+  return gap ? gap.startMinutes : CALENDAR_DAY_START_MIN + 120;
+}
+
+/** Whether the compact "day is free" hint should be shown over the timeline. */
+export function shouldShowEmptyDayHint(blockCount: number, dismissed: boolean): boolean {
+  return blockCount === 0 && !dismissed;
+}
+
 // ── Week-level queries ───────────────────────────────────────────────────────
 
 /** Minutes booked per category across the whole week (overlaps counted raw). */

@@ -1,8 +1,9 @@
 /**
  * MobileWeekView — the week as a vertical list of per-day agenda cards (never a
  * cramped 7-column desktop grid). When the whole week is empty it still shows
- * the seven days (all available) plus a short prompt. Ends with a compact weekly
- * summary card.
+ * the seven days (all available) plus a short prompt. No busy/free/duration
+ * totals are shown here; the dedicated "Ver resumen semanal" screen (reachable
+ * from the calendar's action menu) still exists for anyone who wants that detail.
  */
 
 import { ScrollView, StyleSheet } from 'react-native';
@@ -13,7 +14,6 @@ import type { ActivityBlock, WeekSchedule, Weekday } from '@/types';
 import { WEEKDAYS } from '@/types';
 import { daySummary } from '@/utils/calendar';
 import { WeekDayAgendaCard } from './week-day-agenda-card';
-import { WeeklySummaryCard } from './weekly-summary-card';
 
 export type WeekDayInfo = { day: Weekday; dayNumber: number; isToday: boolean };
 
@@ -23,17 +23,9 @@ export type MobileWeekViewProps = {
   onOpenDay: (day: Weekday) => void;
   onAddDay: (day: Weekday) => void;
   onBlockPress: (block: ActivityBlock) => void;
-  onOpenSummary: () => void;
 };
 
-export function MobileWeekView({
-  schedule,
-  days,
-  onOpenDay,
-  onAddDay,
-  onBlockPress,
-  onOpenSummary,
-}: MobileWeekViewProps) {
+export function MobileWeekView({ schedule, days, onOpenDay, onAddDay, onBlockPress }: MobileWeekViewProps) {
   const theme = useTheme();
   const byDay = new Map(days.map((d) => [d.day, d]));
   const isEmpty = (schedule?.blocks.length ?? 0) === 0;
@@ -67,8 +59,6 @@ export function MobileWeekView({
           />
         );
       })}
-
-      <WeeklySummaryCard schedule={schedule} onOpenSummary={onOpenSummary} />
     </ScrollView>
   );
 }

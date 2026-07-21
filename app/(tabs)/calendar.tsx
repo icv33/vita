@@ -6,7 +6,6 @@ import {
   CalendarActions,
   CalendarHeader,
   CalendarSettingsSheet,
-  DailySummaryBar,
   DayEmptyHint,
   DayPickerSheet,
   DayTimeline,
@@ -16,11 +15,10 @@ import {
   type WeekDayItem,
 } from '@/components/calendar';
 import { Icon, SafeArea } from '@/components/ui';
-import { CALENDAR_DAY_START_MIN } from '@/constants/calendar';
 import { useTheme } from '@/hooks/use-theme';
 import { useCalendarStore } from '@/store';
 import { WEEKDAYS, type ActivityBlock, type Weekday } from '@/types';
-import { blocksForDay, daySummary, freeGaps, minutesToTime, nextBlock } from '@/utils/calendar';
+import { blocksForDay, shouldShowEmptyDayHint, suggestedNewBlockStart } from '@/utils/calendar';
 import { addDays, startOfWeekMonday, todayWeekday, weekRangeLabel } from '@/utils/date';
 import { hapticImpact, hapticSelect } from '@/utils/haptics';
 
@@ -63,12 +61,9 @@ export default function CalendarScreen() {
   }));
   const weekDayInfo: WeekDayInfo[] = weekItems.map(({ day, dayNumber, isToday }) => ({ day, dayNumber, isToday }));
 
-  const summary = daySummary(schedule, selectedDay);
-  const dayBlocks = summary.blocks;
+  const dayBlocks = blocksForDay(schedule, selectedDay);
   const isTodaySelected = isCurrentWeek && selectedDay === today;
-  const nowMinutes = new Date().getHours() * 60 + new Date().getMinutes();
-  const upcoming = nextBlock(dayBlocks, isTodaySelected ? nowMinutes : CALENDAR_DAY_START_MIN);
-  const showHint = view === 'day' && dayBlocks.length === 0 && !hintDismissed;
+  const showHint = view === 'day' && shouldShowEmptyDayHint(dayBlocks.length, hintDismissed);
 
   // ── Navigation to editor ────────────────────────────────────────────────
   const openCreate = (day: Weekday, startMinutes: number) => {
@@ -79,8 +74,7 @@ export default function CalendarScreen() {
   };
   const addToDay = (day: Weekday) => {
     hapticImpact();
-    const firstGap = freeGaps(blocksForDay(schedule, day))[0];
-    openCreate(day, firstGap ? firstGap.startMinutes : CALENDAR_DAY_START_MIN + 120);
+    openCreate(day, suggestedNewBlockStart(blocksForDay(schedule, day)));
   };
 
   const openDayFromWeek = (day: Weekday) => {
@@ -167,15 +161,6 @@ export default function CalendarScreen() {
               </View>
             ) : null}
           </View>
-
-          <View style={{ paddingHorizontal: theme.spacing.lg }}>
-            <DailySummaryBar
-              busyMinutes={summary.busyMinutes}
-              freeMinutes={summary.freeMinutes}
-              nextTime={upcoming ? minutesToTime(upcoming.startMinutes) : null}
-              count={summary.count}
-            />
-          </View>
         </>
       ) : (
         <MobileWeekView
@@ -184,7 +169,6 @@ export default function CalendarScreen() {
           onOpenDay={openDayFromWeek}
           onAddDay={addToDay}
           onBlockPress={openBlock}
-          onOpenSummary={() => router.push('/calendar-summary')}
         />
       )}
 
@@ -195,7 +179,7 @@ export default function CalendarScreen() {
         onPress={() => addToDay(selectedDay)}
         style={({ pressed }) => [
           styles.fab,
-          { bottom: view === 'day' ? 64 : 20, backgroundColor: theme.colors.primary, opacity: pressed ? 0.9 : 1, ...theme.shadows.lg },
+          { backgroundColor: theme.colors.primary, opacity: pressed ? 0.9 : 1, ...theme.shadows.lg },
         ]}>
         <Icon name="add" size={28} color={theme.colors.onPrimary} />
       </Pressable>
@@ -233,6 +217,7 @@ const styles = StyleSheet.create({
   fab: {
     position: 'absolute',
     right: 20,
+    bottom: 20,
     width: 56,
     height: 56,
     borderRadius: 28,

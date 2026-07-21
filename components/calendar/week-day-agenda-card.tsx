@@ -1,8 +1,10 @@
 /**
  * WeekDayAgendaCard — one card per day in the mobile week view. Shows the day
- * header (name + number + today), busy/free summary, the ordered activities as
- * compact rows, the longest free window and a small add button. Tapping the
- * header opens that day in the Day view.
+ * header (name + number + today), the ordered activities as compact rows (or a
+ * short "day free" line), and a small add action. Tapping the header opens that
+ * day in the Day view. No busy/free/duration statistics are shown here — that
+ * math still runs internally (via `daySummary`) for the future planner, it just
+ * isn't rendered on this card.
  */
 
 import { Pressable, StyleSheet, View } from 'react-native';
@@ -11,7 +13,6 @@ import { Card, Icon, Text } from '@/components/ui';
 import { useTheme } from '@/hooks/use-theme';
 import type { ActivityBlock, Weekday } from '@/types';
 import type { DaySummary } from '@/utils/calendar';
-import { formatDuration, formatRange } from '@/utils/calendar';
 import { weekdayLabel } from '@/utils/date';
 import { CompactActivityBlock } from './compact-activity-block';
 
@@ -35,7 +36,7 @@ export function WeekDayAgendaCard({
   onBlockPress,
 }: WeekDayAgendaCardProps) {
   const theme = useTheme();
-  const { blocks, busyMinutes: busy, freeMinutes: free, longestFree } = summary;
+  const { blocks } = summary;
 
   return (
     <Card style={styles.card}>
@@ -58,9 +59,7 @@ export function WeekDayAgendaCard({
             </View>
           ) : null}
         </View>
-        <Text variant="caption" color={busy > 0 ? 'textMuted' : 'success'}>
-          {busy > 0 ? `${formatDuration(busy)} ocupadas` : 'Libre todo el día'}
-        </Text>
+        <Icon name="chevronRight" size={theme.sizes.iconSm} color={theme.colors.textSubtle} />
       </Pressable>
 
       {/* Activities */}
@@ -72,30 +71,22 @@ export function WeekDayAgendaCard({
         </View>
       ) : (
         <Text variant="caption" color="textSubtle" style={styles.freeAll}>
-          Sin actividades · {formatDuration(free)} libres
+          Día libre
         </Text>
       )}
 
-      {/* Footer: longest free window + add */}
+      {/* Footer: add another activity */}
       <View style={[styles.footer, { borderTopColor: theme.colors.border }]}>
-        <View style={styles.footerInfo}>
-          {longestFree ? (
-            <Text variant="caption" color="textSubtle" numberOfLines={1}>
-              Mayor hueco libre · {formatRange(longestFree.startMinutes, longestFree.endMinutes)}
-            </Text>
-          ) : (
-            <Text variant="caption" color="textSubtle">
-              Sin huecos libres
-            </Text>
-          )}
-        </View>
         <Pressable
           accessibilityRole="button"
           accessibilityLabel={`Añadir actividad el ${weekdayLabel(day)}`}
           hitSlop={8}
           onPress={() => onAddDay(day)}
-          style={[styles.addBtn, { borderColor: theme.colors.border, borderRadius: theme.radii.pill }]}>
+          style={styles.addRow}>
           <Icon name="add" size={theme.sizes.iconSm} color={theme.colors.primary} />
+          <Text variant="label" color="primary">
+            Añadir actividad
+          </Text>
         </Pressable>
       </View>
     </Card>
@@ -110,13 +101,8 @@ const styles = StyleSheet.create({
   blocks: { gap: 2 },
   freeAll: { paddingVertical: 4 },
   footer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    gap: 12,
     borderTopWidth: StyleSheet.hairlineWidth,
-    paddingTop: 10,
+    paddingTop: 8,
   },
-  footerInfo: { flex: 1 },
-  addBtn: { width: 32, height: 32, borderWidth: 1, alignItems: 'center', justifyContent: 'center' },
+  addRow: { flexDirection: 'row', alignItems: 'center', gap: 6, minHeight: 32, alignSelf: 'flex-start' },
 });
