@@ -2,7 +2,9 @@ import {
   firstError,
   isNumberInRange,
   validateAge,
+  validateBudget,
   validateHeightCm,
+  validateName,
   validateRequiredText,
   validateWeightKg,
 } from '@/validation';
@@ -32,6 +34,21 @@ describe('validators', () => {
     expect(validateRequiredText('hola').valid).toBe(true);
     expect(validateRequiredText('   ').valid).toBe(false);
     expect(validateRequiredText('').valid).toBe(false);
+  });
+
+  it('validateName enforces a 2–30 char trimmed name', () => {
+    expect(validateName('Ana').valid).toBe(true);
+    expect(validateName('  Ana  ').valid).toBe(true);
+    expect(validateName('A').valid).toBe(false);
+    expect(validateName('').valid).toBe(false);
+    expect(validateName('x'.repeat(31)).valid).toBe(false);
+  });
+
+  it('validateBudget accepts 1–1000 €', () => {
+    expect(validateBudget(60).valid).toBe(true);
+    expect(validateBudget(0).valid).toBe(false);
+    expect(validateBudget(2000).valid).toBe(false);
+    expect(validateBudget(undefined).valid).toBe(false);
   });
 
   it('firstError returns the first failing result', () => {
