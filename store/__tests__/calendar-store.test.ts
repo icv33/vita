@@ -102,4 +102,15 @@ describe('useCalendarStore', () => {
     expect(store().meta.setupCompleted).toBe(false);
     expect(await calendarStorage.getSchedule()).toBeNull();
   });
+
+  it('first navigation after onboarding: intro until setup is completed', async () => {
+    // The onboarding finish routes to the intro while setup is not completed.
+    await store().hydrate();
+    const gateBefore = store().meta.setupCompleted ? '/(tabs)' : '/calendar-intro';
+    expect(gateBefore).toBe('/calendar-intro');
+
+    await store().completeSetup();
+    const gateAfter = store().meta.setupCompleted ? '/(tabs)' : '/calendar-intro';
+    expect(gateAfter).toBe('/(tabs)');
+  });
 });

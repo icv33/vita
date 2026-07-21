@@ -5,7 +5,7 @@ import { Alert, StyleSheet, View } from 'react-native';
 import { Button, Card, Header, Icon, Screen, Text } from '@/components/ui';
 import { PRIMARY_GOALS } from '@/constants';
 import { useTheme } from '@/hooks/use-theme';
-import { resetEntireOnboardingFlow, useAppStore } from '@/store';
+import { resetEntireOnboardingFlow, useAppStore, useCalendarStore } from '@/store';
 import { todayWeekday } from '@/utils';
 import { weekdayLabel } from '@/utils/date';
 import { formatWeight } from '@/utils/format';
@@ -20,6 +20,7 @@ export default function HomeScreen() {
   const theme = useTheme();
   const router = useRouter();
   const profile = useAppStore((s) => s.profile);
+  const resetCalendar = useCalendarStore((s) => s.resetCalendar);
   const [isResetting, setIsResetting] = useState(false);
 
   // Dev tool: fully reset the onboarding flow, then return to the welcome screen.
@@ -94,6 +95,14 @@ export default function HomeScreen() {
             loading={isResetting}
             disabled={isResetting}
             onPress={handleResetOnboarding}
+            style={styles.devButton}
+          />
+          <Button
+            title="Reiniciar solo calendario"
+            variant="ghost"
+            size="sm"
+            icon="calendar"
+            onPress={() => void resetCalendar()}
             style={styles.devButton}
           />
         </Card>

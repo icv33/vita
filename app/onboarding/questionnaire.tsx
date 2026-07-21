@@ -5,7 +5,7 @@ import Animated, { FadeIn } from 'react-native-reanimated';
 import { ReviewStep, StepLayout } from '@/components/onboarding';
 import { STEP_COMPONENTS } from '@/components/onboarding/steps';
 import { REVIEW_STEP_ID } from '@/constants';
-import { useAppStore, useOnboardingStore } from '@/store';
+import { useAppStore, useCalendarStore, useOnboardingStore } from '@/store';
 import { hapticImpact } from '@/utils/haptics';
 import { draftToProfile, prevStepId } from '@/utils/onboarding';
 import { isStepComplete } from '@/validation';
@@ -59,7 +59,9 @@ export default function Questionnaire() {
     const profile = draftToProfile(draft, true);
     await completeOnboarding(profile);
     await resetDraft();
-    router.replace('/(tabs)');
+    // First-time users go to the calendar intro; returning users skip it.
+    const setupCompleted = useCalendarStore.getState().meta.setupCompleted;
+    router.replace(setupCompleted ? '/(tabs)' : '/calendar-intro');
   };
 
   if (stepId === REVIEW_STEP_ID) {

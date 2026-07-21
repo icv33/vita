@@ -55,6 +55,9 @@ export default function RootLayout() {
             <Stack.Screen name="index" />
             <Stack.Screen name="onboarding" />
             <Stack.Screen name="(tabs)" />
+            <Stack.Screen name="calendar-intro" />
+            <Stack.Screen name="calendar-summary" />
+            <Stack.Screen name="calendar-editor" options={{ presentation: 'modal' }} />
           </Stack>
           <StatusBar style="auto" />
         </ThemeProvider>
