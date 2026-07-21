@@ -54,3 +54,31 @@ export function toISODate(date: Date): ISODate {
   const d = String(date.getDate()).padStart(2, '0');
   return `${y}-${m}-${d}`;
 }
+
+/** A new Date `days` after `date` (can be negative). */
+export function addDays(date: Date, days: number): Date {
+  const d = new Date(date);
+  d.setDate(d.getDate() + days);
+  return d;
+}
+
+/** The Monday (00:00) of the week containing `date`. */
+export function startOfWeekMonday(date: Date = new Date()): Date {
+  const jsDay = date.getDay(); // 0=Sun..6=Sat
+  const diff = (jsDay + 6) % 7; // days since Monday
+  const monday = addDays(date, -diff);
+  monday.setHours(0, 0, 0, 0);
+  return monday;
+}
+
+const MONTHS_SHORT_ES = ['ene', 'feb', 'mar', 'abr', 'may', 'jun', 'jul', 'ago', 'sep', 'oct', 'nov', 'dic'];
+
+/** "21–27 jul" for the week starting at `monday`. */
+export function weekRangeLabel(monday: Date): string {
+  const sunday = addDays(monday, 6);
+  const sameMonth = monday.getMonth() === sunday.getMonth();
+  if (sameMonth) {
+    return `${monday.getDate()}–${sunday.getDate()} ${MONTHS_SHORT_ES[sunday.getMonth()]}`;
+  }
+  return `${monday.getDate()} ${MONTHS_SHORT_ES[monday.getMonth()]} – ${sunday.getDate()} ${MONTHS_SHORT_ES[sunday.getMonth()]}`;
+}
