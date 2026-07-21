@@ -44,6 +44,25 @@ export function validateRequiredText(value: unknown): ValidationResult {
   return valid;
 }
 
+/** Name/nickname: required, trimmed, 2–30 characters. */
+export function validateName(value: unknown): ValidationResult {
+  if (typeof value !== 'string' || value.trim().length === 0) {
+    return invalid('Introduce tu nombre.');
+  }
+  const trimmed = value.trim();
+  if (trimmed.length < 2) return invalid('El nombre es demasiado corto.');
+  if (trimmed.length > 30) return invalid('El nombre es demasiado largo (máx. 30).');
+  return valid;
+}
+
+/** Weekly food budget in euros: positive and within a sensible range. */
+export function validateBudget(value: unknown): ValidationResult {
+  if (!isNumberInRange(value, 1, 1000)) {
+    return invalid('Introduce un presupuesto entre 1 y 1000 €.');
+  }
+  return valid;
+}
+
 /** Runs several validators and returns the first failure, else `valid`. */
 export function firstError(...results: ValidationResult[]): ValidationResult {
   return results.find((r) => !r.valid) ?? valid;
