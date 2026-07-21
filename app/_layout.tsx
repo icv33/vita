@@ -9,7 +9,7 @@ import { SafeAreaProvider } from 'react-native-safe-area-context';
 import 'react-native-reanimated';
 
 import { useColorScheme } from '@/hooks/use-color-scheme';
-import { useAppStore, useOnboardingStore } from '@/store';
+import { useAppStore, useCalendarStore, useOnboardingStore } from '@/store';
 import { navDarkTheme, navLightTheme } from '@/theme/navigation';
 
 // Keep the splash screen up until the store has hydrated from storage.
@@ -20,11 +20,13 @@ export default function RootLayout() {
   const hydrate = useAppStore((s) => s.hydrate);
   const isHydrating = useAppStore((s) => s.isHydrating);
   const hydrateDraft = useOnboardingStore((s) => s.hydrateDraft);
+  const hydrateCalendar = useCalendarStore((s) => s.hydrate);
 
   useEffect(() => {
     hydrate();
     hydrateDraft();
-  }, [hydrate, hydrateDraft]);
+    hydrateCalendar();
+  }, [hydrate, hydrateDraft, hydrateCalendar]);
 
   // Persist any pending onboarding edits when the app is backgrounded.
   useEffect(() => {

@@ -10,6 +10,8 @@ export const STORAGE_KEYS = {
   onboardingComplete: 'vita:onboarding:complete',
   onboardingDraft: 'vita:onboarding:draft',
   userProfile: 'vita:user:profile',
+  calendarSchedule: 'vita:calendar:schedule',
+  calendarMeta: 'vita:calendar:meta',
 } as const;
 
 export type StorageKey = (typeof STORAGE_KEYS)[keyof typeof STORAGE_KEYS];

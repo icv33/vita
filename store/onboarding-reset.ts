@@ -9,6 +9,7 @@
 
 import { onboardingStorage, profileStorage } from '@/storage';
 import { useAppStore } from './app-store';
+import { useCalendarStore } from './calendar-store';
 import { useOnboardingStore } from './onboarding-store';
 
 /**
@@ -23,6 +24,7 @@ import { useOnboardingStore } from './onboarding-store';
  *  2. Remove the persisted keys (completion flag, draft, profile).
  *  3. Reset the app store's in-memory state. Hydration flags are kept "done" so
  *     the root layout does not re-hydrate (avoids loops / a blank screen).
+ *  4. Clear the calendar too — a full reset simulates a fresh install.
  */
 export async function resetEntireOnboardingFlow(): Promise<void> {
   // 1) Draft store: cancel timer + clear memory + remove draft key.
@@ -35,4 +37,7 @@ export async function resetEntireOnboardingFlow(): Promise<void> {
   // 3) In-memory state → fresh install. Hydration stays finished.
   useAppStore.setState({ hasCompletedOnboarding: false, profile: null, isHydrating: false });
   useOnboardingStore.setState({ draft: null, returnToReview: false, isHydrated: true });
+
+  // 4) Calendar: clears schedule + meta from storage and resets its store.
+  await useCalendarStore.getState().resetCalendar();
 }

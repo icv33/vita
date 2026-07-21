@@ -1,7 +1,12 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-import { onboardingStorage, profileStorage } from '@/storage';
-import { resetEntireOnboardingFlow, useAppStore, useOnboardingStore } from '@/store';
+import { calendarStorage, onboardingStorage, profileStorage } from '@/storage';
+import {
+  resetEntireOnboardingFlow,
+  useAppStore,
+  useCalendarStore,
+  useOnboardingStore,
+} from '@/store';
 import type { UserProfile } from '@/types';
 
 const sampleProfile: UserProfile = {
@@ -13,20 +18,37 @@ const sampleProfile: UserProfile = {
   updatedAt: '2026-07-21T00:00:00.000Z',
 };
 
-/** Put the app in a "fully onboarded, with a draft" state. */
+/** Put the app in a "fully onboarded, with a draft and a calendar" state. */
 async function seedOnboardedState() {
   await useOnboardingStore.getState().startFresh();
   useOnboardingStore.getState().setAnswers({ name: 'Ana' });
   await useOnboardingStore.getState().flush();
   await useAppStore.getState().completeOnboarding(sampleProfile);
+  await useCalendarStore.getState().addBlock({
+    dayOfWeek: 'monday',
+    startMinutes: 9 * 60,
+    endMinutes: 13 * 60,
+    category: 'work',
+  });
 }
 
 describe('resetEntireOnboardingFlow', () => {
   beforeEach(async () => {
     await AsyncStorage.clear();
     await useOnboardingStore.getState().resetDraft();
+    await useCalendarStore.getState().resetCalendar();
     useOnboardingStore.setState({ isHydrated: true, returnToReview: false });
     useAppStore.setState({ isHydrating: false, hasCompletedOnboarding: false, profile: null });
+  });
+
+  it('also clears the calendar (fresh install)', async () => {
+    await seedOnboardedState();
+    expect(await calendarStorage.getSchedule()).not.toBeNull();
+
+    await resetEntireOnboardingFlow();
+
+    expect(await calendarStorage.getSchedule()).toBeNull();
+    expect(useCalendarStore.getState().schedule).toBeNull();
   });
 
   it('removes the draft, the profile and the completion flag from storage', async () => {
