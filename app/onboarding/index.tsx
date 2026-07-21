@@ -1,50 +1,71 @@
 import { useRouter } from 'expo-router';
-import { StyleSheet, View } from 'react-native';
+import { Alert, StyleSheet, View } from 'react-native';
 
-import { Button, Icon, ProgressBar, Screen, Text } from '@/components/ui';
+import { Button, Card, Icon, Screen, Text } from '@/components/ui';
+import { APP_NAME } from '@/constants';
 import { useTheme } from '@/hooks/use-theme';
-import { useAppStore } from '@/store';
-import { APP_NAME, APP_TAGLINE } from '@/constants';
+import { isResumable, useOnboardingStore } from '@/store';
+import type { IconName } from '@/theme';
+import { stepNumber } from '@/utils/onboarding';
 
 /**
- * Onboarding welcome screen (placeholder).
- *
- * For the base phase this single step just introduces Vita and lets the user
- * complete onboarding so the rest of the app can be reviewed. The real
- * multi-step questionnaire replaces this later.
+ * Onboarding welcome — introduces Vita and starts (or resumes) the questionnaire.
  */
 export default function OnboardingWelcome() {
   const theme = useTheme();
   const router = useRouter();
-  const completeOnboarding = useAppStore((s) => s.completeOnboarding);
+  const draft = useOnboardingStore((s) => s.draft);
+  const startFresh = useOnboardingStore((s) => s.startFresh);
+  const ensureDraft = useOnboardingStore((s) => s.ensureDraft);
+
+  const resumable = isResumable(draft);
+
+  const goToQuestionnaire = () => router.push('/onboarding/questionnaire');
 
   const handleStart = async () => {
-    await completeOnboarding();
-    router.replace('/(tabs)');
+    if (resumable) {
+      Alert.alert(
+        'Empezar de nuevo',
+        'Ya tienes un cuestionario guardado. ¿Quieres empezar desde cero? Perderás el progreso actual.',
+        [
+          { text: 'Cancelar', style: 'cancel' },
+          {
+            text: 'Empezar de nuevo',
+            style: 'destructive',
+            onPress: async () => {
+              await startFresh();
+              goToQuestionnaire();
+            },
+          },
+        ],
+      );
+      return;
+    }
+    await ensureDraft();
+    goToQuestionnaire();
   };
 
-  const highlights: { icon: Parameters<typeof Icon>[0]['name']; label: string }[] = [
-    { icon: 'sparkles', label: 'Plan 100% personalizado' },
-    { icon: 'training', label: 'Entrenamientos adaptativos' },
-    { icon: 'meals', label: 'Nutrición inteligente' },
-    { icon: 'calendar', label: 'Calendario a tu medida' },
+  const highlights: { icon: IconName; label: string }[] = [
+    { icon: 'barbell', label: 'Entrenamiento adaptado a tu tiempo' },
+    { icon: 'nutrition', label: 'Alimentación según tus gustos' },
+    { icon: 'calendar', label: 'Planificación en tu vida real' },
   ];
 
   return (
     <Screen contentStyle={styles.content}>
       <View style={styles.hero}>
         <View
-          style={[
-            styles.logo,
-            { backgroundColor: theme.colors.primary, borderRadius: theme.radii.xxl },
-          ]}>
+          style={[styles.logo, { backgroundColor: theme.colors.primary, borderRadius: theme.radii.xxl }]}>
           <Text variant="display" color="onPrimary">
             V
           </Text>
         </View>
-        <Text variant="display">{APP_NAME}</Text>
-        <Text variant="subheading" color="textMuted" center>
-          {APP_TAGLINE}
+        <Text variant="display" center>
+          Bienvenido a {APP_NAME}
+        </Text>
+        <Text variant="body" color="textMuted" center>
+          Vita adapta tu entrenamiento, tu alimentación y tu planificación a tu vida real.
+          Responde unas preguntas y crearemos después tu plan personalizado.
         </Text>
       </View>
 
@@ -52,34 +73,46 @@ export default function OnboardingWelcome() {
         {highlights.map((item) => (
           <View key={item.label} style={styles.row}>
             <View
-              style={[
-                styles.rowIcon,
-                { backgroundColor: theme.colors.primaryMuted, borderRadius: theme.radii.md },
-              ]}>
+              style={[styles.rowIcon, { backgroundColor: theme.colors.primaryMuted, borderRadius: theme.radii.md }]}>
               <Icon name={item.icon} size={theme.sizes.iconSm} color={theme.colors.primary} />
             </View>
-            <Text variant="body">{item.label}</Text>
+            <Text variant="body" style={styles.rowText}>
+              {item.label}
+            </Text>
           </View>
         ))}
       </View>
 
       <View style={styles.footer}>
-        <ProgressBar progress={0.15} />
-        <Text variant="caption" color="textSubtle" center>
-          Paso 1 de 5 · Cuestionario disponible próximamente
-        </Text>
-        <Button title="Empezar" icon="chevronRight" onPress={handleStart} />
+        <Card elevation="none" style={[styles.timeCard, { backgroundColor: theme.colors.surfaceAlt }]}>
+          <Icon name="time" size={theme.sizes.iconSm} color={theme.colors.textMuted} />
+          <Text variant="caption" color="textMuted">
+            Solo te llevará 3–5 minutos.
+          </Text>
+        </Card>
+
+        <Button title="Crear mi plan" icon="chevronRight" onPress={handleStart} />
+
+        {resumable && draft ? (
+          <Button
+            title={`Continuar donde lo dejaste · Paso ${stepNumber(draft.currentStepId)}`}
+            variant="ghost"
+            onPress={goToQuestionnaire}
+          />
+        ) : null}
       </View>
     </Screen>
   );
 }
 
 const styles = StyleSheet.create({
-  content: { flex: 1, justifyContent: 'space-between', paddingVertical: 24 },
-  hero: { alignItems: 'center', gap: 12, marginTop: 24 },
-  logo: { width: 88, height: 88, alignItems: 'center', justifyContent: 'center', marginBottom: 8 },
-  list: { gap: 16 },
+  content: { flex: 1, justifyContent: 'space-between', paddingVertical: 16 },
+  hero: { alignItems: 'center', gap: 12, marginTop: 16 },
+  logo: { width: 84, height: 84, alignItems: 'center', justifyContent: 'center', marginBottom: 4 },
+  list: { gap: 14 },
   row: { flexDirection: 'row', alignItems: 'center', gap: 12 },
   rowIcon: { width: 36, height: 36, alignItems: 'center', justifyContent: 'center' },
+  rowText: { flex: 1 },
   footer: { gap: 12 },
+  timeCard: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8, paddingVertical: 10 },
 });
