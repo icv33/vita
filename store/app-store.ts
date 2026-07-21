@@ -10,7 +10,6 @@ import { create } from 'zustand';
 
 import { onboardingStorage, profileStorage } from '@/storage';
 import type { UserProfile } from '@/types';
-import { useOnboardingStore } from './onboarding-store';
 
 export type AppState = {
   /** True until persisted state has been read on launch. */
@@ -24,8 +23,6 @@ export type AppState = {
   hydrate: () => Promise<void>;
   /** Persist the confirmed profile, mark onboarding complete. */
   completeOnboarding: (profile: UserProfile) => Promise<void>;
-  /** Dev helper: clear onboarding flag, profile and draft; return to the flow. */
-  resetOnboarding: () => Promise<void>;
 };
 
 export const useAppStore = create<AppState>((set) => ({
@@ -45,11 +42,5 @@ export const useAppStore = create<AppState>((set) => ({
     await profileStorage.set(profile);
     await onboardingStorage.setComplete(true);
     set({ hasCompletedOnboarding: true, profile });
-  },
-
-  resetOnboarding: async () => {
-    await onboardingStorage.reset();
-    await useOnboardingStore.getState().resetDraft();
-    set({ hasCompletedOnboarding: false, profile: null });
   },
 }));

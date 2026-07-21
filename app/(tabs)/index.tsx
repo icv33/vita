@@ -1,9 +1,11 @@
-import { StyleSheet, View } from 'react-native';
+import { useRouter } from 'expo-router';
+import { useState } from 'react';
+import { Alert, StyleSheet, View } from 'react-native';
 
 import { Button, Card, Header, Icon, Screen, Text } from '@/components/ui';
 import { PRIMARY_GOALS } from '@/constants';
 import { useTheme } from '@/hooks/use-theme';
-import { useAppStore } from '@/store';
+import { resetEntireOnboardingFlow, useAppStore } from '@/store';
 import { todayWeekday } from '@/utils';
 import { weekdayLabel } from '@/utils/date';
 import { formatWeight } from '@/utils/format';
@@ -16,8 +18,23 @@ import { formatWeight } from '@/utils/format';
  */
 export default function HomeScreen() {
   const theme = useTheme();
+  const router = useRouter();
   const profile = useAppStore((s) => s.profile);
-  const resetOnboarding = useAppStore((s) => s.resetOnboarding);
+  const [isResetting, setIsResetting] = useState(false);
+
+  // Dev tool: fully reset the onboarding flow, then return to the welcome screen.
+  const handleResetOnboarding = async () => {
+    if (isResetting) return;
+    setIsResetting(true);
+    try {
+      await resetEntireOnboardingFlow();
+      router.replace('/onboarding');
+    } catch (error) {
+      if (__DEV__) console.error('[dev] resetEntireOnboardingFlow failed:', error);
+      Alert.alert('No se pudo reiniciar', 'Vuelve a intentarlo.');
+      setIsResetting(false);
+    }
+  };
 
   const answers = profile?.answers;
   const name = profile?.name?.trim();
@@ -74,7 +91,9 @@ export default function HomeScreen() {
             variant="outline"
             size="sm"
             icon="refresh"
-            onPress={resetOnboarding}
+            loading={isResetting}
+            disabled={isResetting}
+            onPress={handleResetOnboarding}
             style={styles.devButton}
           />
         </Card>

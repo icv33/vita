@@ -40,19 +40,8 @@ describe('useAppStore', () => {
     expect(useAppStore.getState().profile?.name).toBe('Ana');
   });
 
-  it('resetOnboarding clears the flag and profile', async () => {
-    await useAppStore.getState().completeOnboarding(sampleProfile);
-    await useAppStore.getState().resetOnboarding();
-    expect(useAppStore.getState().hasCompletedOnboarding).toBe(false);
-    expect(useAppStore.getState().profile).toBeNull();
-    await useAppStore.getState().hydrate();
-    expect(useAppStore.getState().hasCompletedOnboarding).toBe(false);
-    expect(useAppStore.getState().profile).toBeNull();
-  });
-
   it('exposes the expected initial API', () => {
     expect(typeof initialState.hydrate).toBe('function');
     expect(typeof initialState.completeOnboarding).toBe('function');
-    expect(typeof initialState.resetOnboarding).toBe('function');
   });
 });
