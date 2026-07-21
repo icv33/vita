@@ -34,6 +34,7 @@ export type ThemeColors = {
   // Feedback
   success: string;
   danger: string;
+  dangerMuted: string;
   warning: string;
 
   // Navigation
@@ -64,6 +65,7 @@ export const lightColors: ThemeColors = {
 
   success: palette.green500,
   danger: palette.red500,
+  dangerMuted: 'rgba(229, 72, 77, 0.10)',
   warning: palette.amber500,
 
   tabBar: palette.white,
@@ -93,6 +95,7 @@ export const darkColors: ThemeColors = {
 
   success: palette.green400,
   danger: palette.red500,
+  dangerMuted: 'rgba(229, 72, 77, 0.16)',
   warning: palette.amber500,
 
   tabBar: palette.gray800,

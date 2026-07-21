@@ -4,7 +4,7 @@
  */
 
 export * from './common';
-export * from './user';
+export * from './onboarding';
 export * from './nutrition';
 export * from './training';
 export * from './schedule';

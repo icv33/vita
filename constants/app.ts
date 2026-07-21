@@ -8,6 +8,7 @@ export const APP_TAGLINE = 'Tu plan. Tu tiempo. Tu cambio.';
 /** Namespaced AsyncStorage keys. Centralised to avoid typos and collisions. */
 export const STORAGE_KEYS = {
   onboardingComplete: 'vita:onboarding:complete',
+  onboardingDraft: 'vita:onboarding:draft',
   userProfile: 'vita:user:profile',
 } as const;
 

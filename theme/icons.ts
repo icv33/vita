@@ -4,7 +4,7 @@
  * We standardise on Ionicons (bundled with @expo/vector-icons, so no extra
  * assets and full Expo Go support) and expose a semantic map. Screens and
  * components reference icons by intent (e.g. `home`, `training`) so the
- * underlying icon set can change in one place.
+ * underlying icon set can change in one place. No emojis are used as UI icons.
  */
 
 import Ionicons from '@expo/vector-icons/Ionicons';
@@ -33,16 +33,76 @@ export const icons = {
   checkCircle: 'checkmark-circle',
   close: 'close',
   add: 'add',
+  remove: 'remove',
   settings: 'settings-outline',
   camera: 'camera-outline',
   water: 'water-outline',
-  flame: 'flame-outline',
+  flame: 'flame',
   time: 'time-outline',
+  timer: 'timer-outline',
   cart: 'cart-outline',
-  sparkles: 'sparkles-outline',
+  sparkles: 'sparkles',
   refresh: 'refresh',
   warning: 'alert-circle-outline',
+  info: 'information-circle-outline',
+  edit: 'create-outline',
+  logOut: 'log-out-outline',
   empty: 'file-tray-outline',
+  shield: 'shield-checkmark-outline',
+
+  // People / body
+  person: 'person',
+  personOutline: 'person-outline',
+  people: 'people-outline',
+  body: 'body-outline',
+
+  // Goals & training intent
+  trophy: 'trophy',
+  trendingUp: 'trending-up',
+  leaf: 'leaf',
+  flash: 'flash',
+  heart: 'heart',
+  pulse: 'pulse',
+  fitness: 'fitness',
+  barbell: 'barbell',
+  speedometer: 'speedometer',
+  infinite: 'infinite',
+  football: 'football',
+  bicycle: 'bicycle',
+  walk: 'walk',
+  footsteps: 'footsteps',
+  hand: 'hand-left',
+
+  // Places / occupation
+  business: 'business',
+  school: 'school',
+  book: 'book',
+  briefcase: 'briefcase',
+  construct: 'construct',
+  hammer: 'hammer',
+  sunny: 'sunny',
+  shuffle: 'shuffle',
+  repeat: 'repeat',
+
+  // Nutrition
+  nutrition: 'nutrition',
+  fish: 'fish',
+  cafe: 'cafe',
+  fastFood: 'fast-food',
+  cash: 'cash',
+  wallet: 'wallet',
+  snow: 'snow',
+  restaurantAlt: 'restaurant-outline',
+
+  // Lifestyle / sleep
+  moon: 'moon',
+  partlySunny: 'partly-sunny',
+  cloud: 'cloudy',
+  bed: 'bed',
+  alarm: 'alarm',
+  star: 'star',
+  happy: 'happy',
+  sad: 'sad',
 } as const satisfies Record<string, IoniconName>;
 
 export type IconName = keyof typeof icons;
