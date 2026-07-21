@@ -127,14 +127,25 @@ acciones, paginador de semana + botón **Hoy**, y el toggle) para no saturar.
 
 - **Vista Día:** selector semanal responsive (los 7 días caben sin scroll horizontal; "hoy"
   y "seleccionado" no compiten), **timeline vertical** (07:00–23:00, franjas de 30 min),
-  bloques por categoría, indicador de hora actual con etiqueta, barra de resumen compacta
-  (ocupado/libre/próxima/nº) y FAB. Día vacío → el timeline permanece y aparece una **pista
-  pequeña y cerrable** (nunca una pantalla vacía con botón central duplicado).
-- **Vista Semana (agenda móvil):** lista **vertical** de una tarjeta por día (no una
-  cuadrícula de 7 columnas de escritorio); cada tarjeta muestra cabecera (día/número/hoy),
-  ocupado/libre, actividades compactas ordenadas, mayor hueco libre y un botón de añadir.
-  Tocar la cabecera abre ese día en la vista Día; una tarjeta de resumen semanal cierra la
-  lista. Semana vacía → se muestran los 7 días (todos disponibles) con una nota breve.
+  bloques por categoría, indicador de hora actual con etiqueta y FAB. Sin barra inferior de
+  estadísticas: el espacio recuperado lo usa el propio timeline (más horas visibles sin
+  comprimir, alcance cómodo hasta las 23:00). Día vacío → el timeline permanece y aparece una
+  **pista de una sola línea, cerrable** (≤ 40 px) superpuesta arriba de la cuadrícula; nunca
+  una pantalla vacía con botón central duplicado.
+- **Vista Semana (agenda móvil, sin cambios de fondo):** lista **vertical** de una tarjeta
+  por día (no una cuadrícula de 7 columnas de escritorio); cada tarjeta muestra cabecera
+  (día/número/hoy) y las actividades compactas ordenadas (o "Día libre" si no hay ninguna),
+  y una acción "Añadir actividad". Tocar la cabecera abre ese día en la vista Día. Semana
+  vacía → se muestran los 7 días (todos disponibles) con una nota breve.
+
+**Sin estadísticas de ocupación en la interfaz principal:** ni la vista Día ni la vista
+Semana muestran ya "Ocupado/Libre/Disponible", totales de horas ni "Mayor hueco libre" — el
+calendario se centra en mostrar **actividades y horarios**, no métricas de disponibilidad.
+Ese cálculo (`daySummary`, `weekTotals`, `freeGaps`/`freeWindows`, `longestFreeWindow`, etc.)
+sigue ejecutándose internamente sin cambios y con cobertura de tests intacta — es la entrada
+que usará el futuro generador de planes; solo se retiró su **presentación visual**. El único
+lugar donde el usuario puede consultar ese detalle, si lo busca explícitamente, es la
+pantalla dedicada "Ver resumen semanal" (acción del menú ⋯), que no se ha tocado.
 
 **Preferencias de interfaz** (persistidas en `CalendarMeta`): vista día/semana, día
 seleccionado y semana mostrada (`lastWeekOffset`). El botón **Hoy** vuelve a la semana
@@ -155,10 +166,21 @@ migración (`storage/calendar-storage.ts`, `storage/calendar-migrations.ts`), es
 (`store/calendar-store.ts`, escrituras inmediatas por acción discreta) y componentes
 (`components/calendar/`: `CalendarHeader`, `CalendarViewToggle`, `WeekDaySelector`,
 `DayTimeline`, `TimeGrid`, `ActivityBlockCard`, `CompactActivityBlock`, `CurrentTimeIndicator`,
-`DayEmptyHint`, `DailySummaryBar`, `MobileWeekView`, `WeekDayAgendaCard`, `ActivityEditor`,
-`CalendarActions`, `CalendarSettingsSheet`, `DayPickerSheet`, `Sheet`, `WeeklySummary`,
-`WeeklySummaryCard`, `EmptyScheduleState`). La geometría del timeline vive en
-`components/calendar/layout.ts` (conversión minutos↔píxeles).
+`DayEmptyHint`, `MobileWeekView`, `WeekDayAgendaCard`, `ActivityEditor`, `CalendarActions`,
+`CalendarSettingsSheet`, `DayPickerSheet`, `Sheet`, `WeeklySummary`, `EmptyScheduleState`).
+`DailySummaryBar` y `WeeklySummaryCard` se **eliminaron** al retirar las estadísticas
+visibles (ver más abajo). La geometría del timeline vive en `components/calendar/layout.ts`
+(conversión minutos↔píxeles); el ancho de la columna horaria y las funciones puras que la
+alimentan (`timelineHours`, `suggestedNewBlockStart`, `shouldShowEmptyDayHint`) están
+testeados.
+
+**Alineación horizontal del timeline:** `TimeGrid`, `ActivityBlockCard` y
+`CurrentTimeIndicator` se posicionan con `position: 'absolute'`; en React Native esos
+desplazamientos `left`/`right` se resuelven contra el *padding box* del ancestro
+posicionado más cercano. Por eso el padding horizontal (`theme.spacing.lg`) se aplica **una
+sola vez**, en la vista que envuelve a los tres dentro de `DayTimeline`, y los tres quedan
+alineados automáticamente entre sí y con el resto de la pantalla (cabecera, selector de
+días) — evita el bug anterior de etiquetas de hora pegadas al borde físico de la pantalla.
 
 **Fuentes externas (preparación, sin sincronización):** el modelo incluye `source`
 (`vita`/`device`/`google`/`outlook`), `readOnly` e ids externos. Los bloques de Vita llevan

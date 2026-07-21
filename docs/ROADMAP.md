@@ -53,6 +53,22 @@ Estado por fases. Esta entrega cubre la **Fase 0**.
   v2; bloques externos de solo lectura no editables.
 - [x] iPad/web aplazados a propósito; arquitectura desacoplada del ancho.
 
+## ✅ Fase 2.2 — Corrección visual: timeline diario y estadísticas ocultas
+
+- [x] Corregido el bug de las horas cortadas (padding horizontal ausente en el timeline;
+  causaba que la columna de horas quedara pegada al borde físico de la pantalla).
+- [x] Vista Día rediseñada: sin barra inferior de estadísticas, más horas visibles, FAB
+  reposicionado (`bottom: 20`, igual en Día y Semana).
+- [x] Pista de día vacío reducida a una línea (≤ 40 px), sin desplazar el timeline.
+- [x] Eliminadas de la interfaz principal las estadísticas de ocupado/libre/disponible:
+  `DailySummaryBar` y `WeeklySummaryCard` eliminados; `WeekDayAgendaCard` simplificada
+  (solo cabecera, actividades y "Añadir actividad", sin duración ni "Mayor hueco libre").
+- [x] Toda la lógica de disponibilidad (`daySummary`, `weekTotals`, `freeGaps`,
+  `freeWindows`, solapamientos) se **conserva íntegra y testeada** — solo se retiró su
+  presentación visual; la pantalla "Ver resumen semanal" sigue disponible sin cambios.
+- [x] Nuevos helpers puros y testeados: `timelineHours`, `suggestedNewBlockStart`,
+  `shouldShowEmptyDayHint`.
+
 ## 🔜 Fase 3 — Generación del plan semanal
 
 - [ ] Generar `WeeklyPlan` (entrenamientos + comidas) a partir del `UserProfile` y la

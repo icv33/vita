@@ -87,6 +87,10 @@ Alias de importación: **`@/`** apunta a la raíz del proyecto (p. ej.
 - Toda la aritmética (orden, solapamientos, huecos, disponibilidad, `daySummary`,
   `weekTotals`) vive en `utils/calendar.ts` (pura, testeada); validación en
   `validation/calendar.ts`. **No dupliques cálculos** en componentes.
+- **La disponibilidad se calcula pero no se muestra**: el calendario no presenta
+  estadísticas de ocupado/libre/disponible en su interfaz principal (ni en la vista Día ni
+  en la Semana); esos cálculos siguen internos, para el futuro generador de planes. El
+  único lugar donde se pueden consultar es la pantalla dedicada "Ver resumen semanal".
 - **Dos vistas móviles** (Día / Semana) con toggle segmentado. La vista, el día
   seleccionado y la semana mostrada se **persisten** en `CalendarMeta` (valor inicial: Día).
 - `calendar-store` persiste de forma inmediata por acción discreta (no por pulsación);

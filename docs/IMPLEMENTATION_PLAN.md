@@ -2,6 +2,58 @@
 
 Registro de lo realizado por fases y cómo continuar.
 
+## Fase 2.2 — Corrección visual: timeline diario y estadísticas ocultas
+
+**Causa exacta de las horas cortadas:** la vista wrapping de `DayTimeline` que contiene
+`TimeGrid`, los bloques (`ActivityBlockCard`) y `CurrentTimeIndicator` no tenía padding
+horizontal, a diferencia del resto de la pantalla (cabecera, selector de días) que usa
+`theme.spacing.lg` (16 px). Como los tres se posicionan con `position: 'absolute'` (cuyos
+offsets `left`/`right` en React Native se resuelven contra el *padding box* del ancestro
+posicionado más cercano), la columna de horas quedaba pegada al borde físico x=0 de la
+pantalla, sin margen — de ahí el aspecto "cortado" en las capturas.
+
+**Solución:** añadir `paddingHorizontal: theme.spacing.lg` **una sola vez**, en esa vista
+compartida dentro de `day-timeline.tsx`. Al ser el ancestro posicionado común de los tres
+elementos absolutos, todos quedan alineados automáticamente entre sí y con el resto de la
+pantalla, sin tocar la matemática interna de `TimeGrid`, `ActivityBlockCard` ni
+`CurrentTimeIndicator`.
+
+**Qué más se hizo**
+
+1. **Vista Día**: eliminada `DailySummaryBar` (barra inferior de ocupado/libre/próxima/nº);
+   el espacio recuperado lo usa el timeline (más horas visibles, alcance cómodo a las
+   23:00). FAB reposicionado a `bottom: 20` fijo (antes variaba entre vistas para esquivar
+   la barra eliminada). `DayEmptyHint` reducida de tarjeta multilínea a una sola línea
+   cerrable (≤ 40 px): "Día libre · toca una hora para añadir".
+2. **Vista Semana** (conservada, solo simplificación de tarjetas): `WeekDayAgendaCard` ya
+   no muestra "X h ocupadas"/"Mayor hueco libre"/"· X libres"; solo cabecera (día, número,
+   "Hoy", chevron), actividades ordenadas o "Día libre", y una acción "Añadir actividad".
+   Eliminada `WeeklySummaryCard` (tarjeta inferior de ocupado/libre/bloques/día con más
+   disponibilidad) de `MobileWeekView` — la pantalla dedicada "Ver resumen semanal" (menú
+   ⋯, sin tocar) sigue siendo el único lugar con ese detalle.
+3. **Lógica conservada intacta**: `daySummary`, `weekTotals`, `freeGaps`, `freeWindows`,
+   `longestFreeWindow`, `busyMinutes`/`freeMinutes`, detección de solapamientos — sin
+   cambios, con toda su cobertura de tests previa intacta. Solo se retiró su
+   **presentación visual**, nunca la lógica.
+4. **Nuevos helpers puros** (`utils/calendar.ts`, testeados): `timelineHours()` (marcas de
+   hora 07:00–23:00, ya no inline en `TimeGrid`), `suggestedNewBlockStart()` (decisión
+   compartida del FAB y de "Añadir actividad": primer hueco libre o resguardo a media
+   mañana), `shouldShowEmptyDayHint()` (visibilidad de la pista compacta).
+5. **Componentes eliminados**: `components/calendar/daily-summary-bar.tsx`,
+   `components/calendar/weekly-summary-card.tsx` (y sus exports en el barrel).
+6. **Pruebas**: nuevas para los tres helpers puros y una prueba de sanidad geométrica
+   (`GUTTER_WIDTH` reserva un ancho válido; `minuteToY`/`yToMinute` sin pérdida). Ninguna
+   prueba de disponibilidad existente se tocó ni se eliminó.
+7. **Documentación** actualizada (este archivo + CLAUDE, PRODUCT_SPEC, ARCHITECTURE,
+   ROADMAP).
+
+**Limitaciones:** sigue sin gestos de arrastre (documentado desde la fase anterior); iPad/
+web siguen aplazados a propósito.
+
+**Siguiente fase recomendada:** Fase 3 — generación del plan semanal, usando exactamente
+la disponibilidad que ya se calcula internamente (`freeGaps`/`freeWindows`/`daySummary`)
+pero que ahora no se expone en la interfaz principal del calendario.
+
 ## Fase 2.1 — Rediseño móvil del calendario (Día / Semana)
 
 **Problemas del calendario anterior**

@@ -58,10 +58,13 @@ el **calendario interactivo de disponibilidad** (funcionalidad 2).
   disponible, con **dos vistas móviles**: **Día** (timeline 07:00–23:00 en franjas de 30 min)
   y **Semana** (agenda vertical, una tarjeta por día). Crear/editar/eliminar bloques con
   validación y conflictos, categorías con color, mover por hora, copiar/repetir horarios,
-  resumen semanal de disponibilidad, botón Hoy e introducción de primera vez. La vista, el día
-  y la semana elegidos se recuerdan. El modelo queda **preparado para calendarios externos**
-  (Apple/Google/Outlook) como bloques de solo lectura, sin sincronización real todavía. La
-  disponibilidad calculada alimentará al futuro generador de planes.
+  botón Hoy e introducción de primera vez. La vista, el día y la semana elegidos se
+  recuerdan. La interfaz se centra en **actividades y horarios** — no muestra estadísticas de
+  ocupación (horas ocupadas/libres, mayor hueco libre); esos cálculos de disponibilidad
+  siguen ejecutándose internamente y alimentarán al futuro generador de planes, y quedan
+  consultables solo en la pantalla dedicada "Ver resumen semanal". El modelo queda
+  **preparado para calendarios externos** (Apple/Google/Outlook) como bloques de solo
+  lectura, sin sincronización real todavía.
 
 La **integración real de calendarios externos**, la **generación de planes** (entrenamientos,
 dietas, objetivos de calorías/macros, listas de la compra) y el **análisis** llegan en fases
