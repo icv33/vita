@@ -14,13 +14,20 @@ Estado por fases. Esta entrega cubre la **Fase 0**.
 - [x] Documentación (product spec, arquitectura, modelo de datos, roadmap, plan).
 - [x] Verificación: lint, typecheck, tests, expo-doctor.
 
-## 🔜 Fase 1 — Onboarding real
+## ✅ Fase 1 — Onboarding y cuestionario inicial
 
-- [ ] Cuestionario multi-paso (objetivo, datos personales, entrenamiento, alimentación, estilo de vida).
-- [ ] Validación por paso e indicador de progreso.
-- [ ] Persistir `UserProfile` completo.
+- [x] Cuestionario multi-paso (nombre, objetivo, datos personales, actividad, experiencia,
+  disponibilidad, lugar y material, preferencias, limitaciones, alimentación, restricciones,
+  cocina y presupuesto, rutina y sueño).
+- [x] Lógica adaptativa (peso objetivo, deporte, equipamiento por lugar, dieta "otra",
+  presupuesto/supermercado, confirmación de alergias).
+- [x] Validación por paso, indicador de progreso y número de paso.
+- [x] Borrador persistente (reanudar, volver atrás, salir y continuar) separado del perfil.
+- [x] Pantalla de revisión editable + aviso obligatorio; conversión borrador → `UserProfile`.
+- [x] Inicio con datos reales; Progreso con estados vacíos (sin datos ficticios).
+- [x] Pruebas de validación, navegación, persistencia y conversión.
 
-## Fase 2 — Calendario interactivo
+## 🔜 Fase 2 — Calendario interactivo
 
 - [ ] Vista semanal con bloques por día.
 - [ ] Crear / mover / eliminar bloques de actividad.

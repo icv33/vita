@@ -46,12 +46,17 @@ familiares, retos y comunidad, integración con entrenadores.
 - Usuarios que quieren organizar salud y agenda sin complicaciones.
 - iOS y Android vía Expo Go durante el desarrollo. iPhone es la referencia principal.
 
-## Estado actual (fase base)
+## Estado actual
 
-Implementada la **base técnica y visual**: sistema de diseño, kit de UI, navegación
-(onboarding + 5 pestañas), persistencia del estado de onboarding y pantallas
-provisionales cuidadas. El cuestionario, el calendario, las dietas y los
-entrenamientos **aún no** están construidos (ver `ROADMAP.md`).
+Implementada la **base técnica y visual** (sistema de diseño, kit de UI, navegación de 5
+pestañas, persistencia) y el **onboarding completo** (funcionalidad 1): cuestionario
+multi-paso, adaptativo, validado, con borrador persistente, resumen editable y conversión a
+un perfil confirmado. Inicio muestra datos reales del perfil y Progreso, estados vacíos
+cuidados hasta que exista un plan.
+
+El **calendario interactivo**, la **generación de planes** (entrenamientos, dietas,
+objetivos de calorías/macros, listas de la compra) y el **análisis** llegan en fases
+posteriores (ver `ROADMAP.md`). Las estimaciones energéticas aún **no** se calculan.
 
 ## No objetivos de esta fase
 

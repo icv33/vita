@@ -1,4 +1,43 @@
-# Vita — Plan de implementación (Fase 0)
+# Vita — Plan de implementación
+
+Registro de lo realizado por fases y cómo continuar.
+
+## Fase 1 — Onboarding y cuestionario inicial
+
+**Qué se hizo**
+
+1. **Modelo de dominio** (`types/onboarding.ts`): `OnboardingAnswers` (todos los campos
+   opcionales), `OnboardingDraft` (temporal) y `UserProfile` (confirmado), con
+   `schemaVersion` para migraciones. Uniones derivadas de los catálogos.
+2. **Catálogos y registro de pasos** (`constants/catalogs.ts`, `constants/onboarding.ts`):
+   fuente única de opciones (`as const` + tipos derivados) y orden/textos de los 14 pasos.
+3. **Lógica pura** (`utils/onboarding.ts`, `utils/onboarding-summary.ts`): crear borrador,
+   navegación de pasos, progreso, `applicableEquipment`, `sleepHoursBetween` (derivado),
+   `draftToProfile` y el generador de filas del resumen.
+4. **Validación** (`validation/onboarding.ts` + validadores `validateName`/`validateBudget`):
+   `isStepComplete` por paso y errores inline de datos personales/presupuesto.
+5. **Persistencia** (`storage/`): borrador (`onboardingStorage`) y perfil (`profileStorage`)
+   separados, con nuevas claves namespaced.
+6. **Estado** (`store/onboarding-store.ts`): borrador con escritura *debounced* + *flush*
+   inmediato en navegación y en segundo plano (`AppState`); `app-store` amplía el perfil.
+7. **UI** (`components/onboarding/`): `StepLayout`, `ChipGroup`, `Stepper`, `TimeStepper`,
+   `Checkbox`, `Question`, `ReviewStep` y un componente por paso; `Selector` admite icono.
+8. **Pantallas** (`app/onboarding/`): bienvenida (crear/continuar) y host del cuestionario
+   (una pantalla dirigida por estado, con transiciones y lógica adaptativa).
+9. **Inicio/Progreso**: Inicio usa el perfil real; Progreso muestra estados vacíos.
+10. **Pruebas**: navegación, validación por paso, campos condicionales, persistencia y
+    reanudación del borrador, conversión a perfil y reset del store.
+11. **Documentación** actualizada.
+
+**Cómo continuar (Fase 2 — Calendario interactivo)**
+
+1. Nuevo grupo de rutas/estado para la cuadrícula semanal (`WeekSchedule`, `ActivityBlock`).
+2. Reutilizar el sistema de diseño y el kit de UI; añadir gestos para bloques.
+3. Alimentar el futuro generador de plan con la disponibilidad y el `UserProfile`.
+
+---
+
+# Fase 0 — Base del proyecto
 
 Registro de lo realizado en la fase base y cómo continuar.
 

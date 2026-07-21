@@ -11,17 +11,46 @@ llega con las funcionalidades correspondientes.
 - `Weekday` — día de la semana, **empezando en lunes**; `WEEKDAYS` es el array ordenado.
 - `ID` — alias de `string` para identificadores.
 
-## Usuario y onboarding (`types/user.ts`)
+## Onboarding, borrador y perfil (`types/onboarding.ts`)
 
-- `Goal` — `lose_fat | gain_muscle | improve_performance | maintain | improve_habits`.
-- `Sex`, `ActivityLevel`, `TrainingLocation`, `TrainingDaysPerWeek`, `MealsPerDay`,
-  `CookingTime` — enumeraciones del cuestionario.
-- `PersonalData` — edad, sexo, altura (cm), peso y peso objetivo (kg).
-- `TrainingPreferences` — días/semana y lugar de entrenamiento.
-- `NutritionPreferences` — comidas/día, tiempo para cocinar, alergias, presupuesto.
-- `OnboardingAnswers` — agregado de todas las respuestas.
-- `UserProfile` — perfil persistido; `onboarding` es `Partial` mientras el flujo no ha
-  terminado.
+Las **uniones de valores** (objetivo, sexo, ocupación, equipamiento, dieta, etc.) se
+derivan de los catálogos en `constants/catalogs.ts` (fuente única de verdad, `as const`),
+de modo que el modelo de datos y las opciones de la UI no pueden divergir.
+
+- `OnboardingAnswers` — todas las respuestas del cuestionario. **Todos los campos son
+  opcionales**: el borrador se rellena progresivamente y algunas preguntas son adaptativas.
+  Agrupa: identidad (`name`), objetivo (`primaryGoal`, `secondaryGoals`, `targetSport`),
+  datos personales (`age`, `sex`, `heightCm`, `weightKg`, `targetWeightKg`), actividad
+  (`occupation`, `activityType`, `dailySteps`), entrenamiento (`trainingLevel`,
+  `trainingDaysPerWeek`, `sessionDuration`, `trainingPlaces`, `equipment`, `trainingTypes`,
+  `currentSports`, `dislikedExercises`, `physicalLimitations`), nutrición (`mealsPerDay`,
+  `dietType`, `dietTypeOther`, `allergies`, `otherAllergies`, `dislikedFoods`,
+  `favoriteFoods`, `mealsOutPerWeek`, `repeatMeals`, `nutritionPriority`), cocina y
+  presupuesto (`cookingTime`, `cookingLevel`, `peopleToCookFor`, `wantsBudget`,
+  `weeklyBudgetEuros`, `supermarket`, `appliances`) y estilo de vida (`wakeUpTime`,
+  `bedTime`, `sleepQuality`, `stressLevel`, `preferredTrainingTime`, `noTrainingDays`).
+- `OnboardingSection` — agrupación lógica para el resumen: `profile | goal | activity |
+  training | nutrition | lifestyle`.
+- `OnboardingDraft` — estado **temporal** del cuestionario (persistido para reanudar):
+  `schemaVersion`, `currentStepId`, `completedStepIds`, `answers`, `createdAt`, `updatedAt`.
+- `UserProfile` — perfil **confirmado**, escrito solo al finalizar la revisión y aceptar
+  el aviso: `schemaVersion`, `name`, `answers`, `acknowledgedDisclaimer`, timestamps.
+
+### Campos derivados (no se guardan)
+
+Se calculan a partir de los datos originales y **no** se persisten: la duración estimada
+de sueño (de `bedTime`/`wakeUpTime`, vía `sleepHoursBetween`) y, en el futuro, calorías y
+macros.
+
+### Catálogos (`constants/catalogs.ts`)
+
+Cada catálogo es una tupla `as const` de `Option<T>` (`value`, `label`, `description?`,
+`icon?`) y exporta su tipo unión derivado. Incluye: `PRIMARY_GOALS`, `SECONDARY_GOALS`,
+`SEXES`, `OCCUPATIONS`, `ACTIVITY_TYPES`, `DAILY_STEPS`, `TRAINING_LEVELS`,
+`SESSION_DURATIONS`, `TRAINING_PLACES`, `EQUIPMENT` (+ `EQUIPMENT_BY_PLACE`),
+`TRAINING_TYPES`, `DIET_TYPES`, `MEALS_OUT`, `NUTRITION_PRIORITIES`, `COOKING_TIMES`,
+`COOKING_LEVELS`, `APPLIANCES`, `SLEEP_QUALITIES`, `STRESS_LEVELS`,
+`PREFERRED_TRAINING_TIMES`, `COMMON_ALLERGIES`.
 
 ## Nutrición (`types/nutrition.ts`)
 
@@ -59,9 +88,13 @@ llega con las funcionalidades correspondientes.
 Claves centralizadas en `constants/app.ts` (`STORAGE_KEYS`), namespaced con el prefijo
 `vita:`:
 
-| Clave                        | Contenido                         |
-|------------------------------|-----------------------------------|
-| `vita:onboarding:complete`   | `boolean` — onboarding finalizado |
-| `vita:user:profile`          | `UserProfile` (futuro)            |
+| Clave                        | Contenido                                  |
+|------------------------------|--------------------------------------------|
+| `vita:onboarding:complete`   | `boolean` — onboarding finalizado          |
+| `vita:onboarding:draft`      | `OnboardingDraft` — borrador en curso      |
+| `vita:user:profile`          | `UserProfile` — perfil confirmado          |
 
-El acceso pasa siempre por `storage/` (wrapper tipado, fail-soft con JSON).
+El acceso pasa siempre por `storage/` (wrapper tipado, fail-soft con JSON):
+`onboardingStorage` (flag + borrador) y `profileStorage` (perfil). El **borrador** y el
+**perfil confirmado** se mantienen separados a propósito (estado temporal vs. definitivo).
+`schemaVersion` en ambos permite futuras migraciones.
