@@ -62,6 +62,9 @@ export const icons = {
   easel: 'easel',
   addCircle: 'add-circle',
   chevronUp: 'chevron-up',
+  lock: 'lock-closed',
+  link: 'link-outline',
+  cloudOffline: 'cloud-offline-outline',
 
   // People / body
   person: 'person',

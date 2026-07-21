@@ -14,6 +14,9 @@ import { CurrentTimeIndicator } from './current-time-indicator';
 import { minuteToY, TIMELINE_HEIGHT } from './layout';
 import { TimeGrid } from './time-grid';
 
+/** Extra scroll room so the 22:00–23:00 range clears the bottom summary bar. */
+const BOTTOM_SPACER = 48;
+
 export type DayTimelineProps = {
   blocks: ActivityBlock[];
   isToday: boolean;
@@ -36,7 +39,7 @@ export function DayTimeline({ blocks, isToday, onSlotPress, onBlockPress }: DayT
     <ScrollView
       ref={scrollRef}
       style={styles.flex}
-      contentContainerStyle={{ height: TIMELINE_HEIGHT }}
+      contentContainerStyle={{ height: TIMELINE_HEIGHT + BOTTOM_SPACER }}
       showsVerticalScrollIndicator={false}>
       <View style={styles.flex}>
         <TimeGrid onSlotPress={onSlotPress} />

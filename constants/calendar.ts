@@ -83,3 +83,16 @@ export const ACTIVITY_LOCATIONS = [
   { value: 'outdoor', label: 'Exterior', icon: 'sunny' },
   { value: 'other', label: 'Otro', icon: 'location' },
 ] as const satisfies readonly LocationOption[];
+
+const LOCATION_BY_VALUE: Record<ActivityLocation, LocationOption> = ACTIVITY_LOCATIONS.reduce(
+  (acc, l) => {
+    acc[l.value] = l;
+    return acc;
+  },
+  {} as Record<ActivityLocation, LocationOption>,
+);
+
+/** Look up a location's presentation metadata. */
+export function locationMeta(location: ActivityLocation): LocationOption {
+  return LOCATION_BY_VALUE[location] ?? LOCATION_BY_VALUE.other;
+}
