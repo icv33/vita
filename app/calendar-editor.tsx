@@ -124,10 +124,11 @@ export default function CalendarEditorScreen() {
         initial={initial}
         sameDayBlocks={sameDayBlocks}
         editingId={editing?.id}
+        readOnly={Boolean(editing?.readOnly)}
         onSave={handleSave}
         onCancel={() => router.back()}
-        onDelete={editing ? handleDelete : undefined}
-        onDuplicate={editing ? () => setPickerVisible(true) : undefined}
+        onDelete={editing && !editing.readOnly ? handleDelete : undefined}
+        onDuplicate={editing && !editing.readOnly ? () => setPickerVisible(true) : undefined}
       />
       <DayPickerSheet
         visible={pickerVisible}

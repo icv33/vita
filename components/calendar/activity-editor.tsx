@@ -16,10 +16,12 @@ import {
   CALENDAR_DAY_END_MIN,
   CALENDAR_DAY_START_MIN,
   CALENDAR_SLOT_MIN,
+  categoryMeta,
+  locationMeta,
 } from '@/constants/calendar';
 import { useTheme } from '@/hooks/use-theme';
 import type { ActivityBlock, ActivityCategory, ActivityLocation, Weekday } from '@/types';
-import { minutesToTime } from '@/utils/calendar';
+import { formatRange, minutesToTime } from '@/utils/calendar';
 import { weekdayLabel } from '@/utils/date';
 import { hapticSelect } from '@/utils/haptics';
 import { validateBlock } from '@/validation';
@@ -41,6 +43,8 @@ export type ActivityEditorProps = {
   /** Same-day blocks used for conflict detection (excluding the edited one). */
   sameDayBlocks: ActivityBlock[];
   editingId?: string;
+  /** Read-only (external) block: shown as details, not editable. */
+  readOnly?: boolean;
   onSave: (values: ActivityEditorValues) => void;
   onCancel: () => void;
   onDelete?: () => void;
@@ -107,6 +111,7 @@ export function ActivityEditor({
   initial,
   sameDayBlocks,
   editingId,
+  readOnly = false,
   onSave,
   onCancel,
   onDelete,
@@ -121,6 +126,56 @@ export function ActivityEditor({
   );
 
   const patch = (p: Partial<ActivityEditorValues>) => setValues((v) => ({ ...v, ...p }));
+
+  // Read-only (external) blocks are shown as details, never edited.
+  if (readOnly) {
+    const cat = categoryMeta(initial.category);
+    const rows: { label: string; value: string }[] = [
+      { label: 'Categoría', value: cat.label },
+      ...(initial.title.trim() ? [{ label: 'Título', value: initial.title.trim() }] : []),
+      { label: 'Día', value: weekdayLabel(day) },
+      { label: 'Horario', value: formatRange(initial.startMinutes, initial.endMinutes) },
+      ...(initial.location ? [{ label: 'Ubicación', value: locationMeta(initial.location).label }] : []),
+      ...(initial.notes.trim() ? [{ label: 'Notas', value: initial.notes.trim() }] : []),
+    ];
+    return (
+      <SafeArea edges={['top', 'left', 'right', 'bottom']}>
+        <View style={[styles.header, { paddingHorizontal: theme.spacing.lg }]}>
+          <Text variant="heading">Detalle de actividad</Text>
+          <Pressable accessibilityRole="button" accessibilityLabel="Cerrar" onPress={onCancel} hitSlop={12}>
+            <Icon name="close" size={theme.sizes.iconLg} color={theme.colors.textMuted} />
+          </Pressable>
+        </View>
+        <ScrollView
+          style={styles.flex}
+          contentContainerStyle={[styles.content, { paddingHorizontal: theme.spacing.lg }]}
+          showsVerticalScrollIndicator={false}>
+          <View style={[styles.external, { backgroundColor: theme.colors.surfaceAlt, borderRadius: theme.radii.md }]}>
+            <Icon name="lock" size={theme.sizes.iconSm} color={theme.colors.textMuted} />
+            <Text variant="caption" color="textMuted" style={styles.flex}>
+              Actividad de un calendario externo. Solo bloquea tu disponibilidad y no se puede
+              editar desde Vita.
+            </Text>
+          </View>
+          {rows.map((r) => (
+            <View key={r.label} style={styles.detailRow}>
+              <Text variant="caption" color="textMuted">
+                {r.label}
+              </Text>
+              <Text variant="body">{r.value}</Text>
+            </View>
+          ))}
+        </ScrollView>
+        <View
+          style={[
+            styles.footer,
+            { paddingHorizontal: theme.spacing.lg, borderTopColor: theme.colors.border, backgroundColor: theme.colors.background },
+          ]}>
+          <Button title="Cerrar" variant="secondary" onPress={onCancel} />
+        </View>
+      </SafeArea>
+    );
+  }
 
   return (
     <SafeArea edges={['top', 'left', 'right', 'bottom']}>
@@ -233,6 +288,8 @@ const styles = StyleSheet.create({
     paddingVertical: 12,
   },
   content: { paddingBottom: 24, gap: 18 },
+  external: { flexDirection: 'row', alignItems: 'center', gap: 10, padding: 12 },
+  detailRow: { gap: 2 },
   field: { gap: 10 },
   timeRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
   timeControls: { flexDirection: 'row', alignItems: 'center', gap: 12 },
