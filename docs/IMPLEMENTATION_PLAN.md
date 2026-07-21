@@ -2,6 +2,48 @@
 
 Registro de lo realizado por fases y cómo continuar.
 
+## Fase 2.1 — Rediseño móvil del calendario (Día / Semana)
+
+**Problemas del calendario anterior**
+
+- Selector de días con `ScrollView` de ancho fijo → los 7 días no cabían en iPhone (domingo
+  cortado); "hoy" y "seleccionado" se confundían.
+- Sin vista Semana ni selector Día/Semana; sin botón Hoy.
+- Día vacío reemplazaba todo el timeline por un `EmptyState` con botón central que duplicaba
+  el FAB.
+- La semana mostrada no se persistía; el modelo no distinguía origen (Vita vs externo).
+
+**Qué se hizo**
+
+1. **Modelo** (`types/schedule.ts`): `ActivitySource` (`vita|device|google|outlook`),
+   `readOnly` e ids externos en `ActivityBlock`; `CalendarView` y `view`/`lastWeekOffset` en
+   `CalendarMeta`. Esquema **v2** con migración (añade `source: 'vita'`, defaults de vista).
+2. **Store** (`store/calendar-store.ts`): `view`/`weekOffset` persistidos, `setView`,
+   `setWeekOffset`, `goToToday`, `resetVisualPreferences`; `source: 'vita'` en `addBlock`;
+   guardas que **impiden** editar/eliminar/vaciar bloques `readOnly`.
+3. **Lógica pura** (`utils/calendar.ts`): `daySummary`, `weekTotals`, `isBlockEditable`.
+4. **UI Día** (`components/calendar/`): `CalendarHeader`, `CalendarViewToggle`,
+   `WeekDaySelector` responsive, `DayEmptyHint`, `ActivityBlockCard` pulido, `DailySummaryBar`,
+   `CurrentTimeIndicator` con etiqueta y refresco en primer plano.
+5. **UI Semana**: `MobileWeekView`, `WeekDayAgendaCard`, `CompactActivityBlock`,
+   `WeeklySummaryCard` (agenda vertical, sin cuadrícula de escritorio).
+6. **Pantalla** (`app/(tabs)/calendar.tsx`): reescrita con toggle Día/Semana, FAB único y
+   botón Hoy; editor con **modo solo lectura** para bloques externos; menú de acciones
+   ampliado (añadir, ajustes, reset dev) y ajustes con externos "Próximamente".
+7. **Pruebas**: vista por defecto, persistencia de vista/día/semana, `goToToday`, `source`,
+   guardas `readOnly`, `resetVisualPreferences`, migración v2, `daySummary`/`weekTotals`.
+8. **Documentación** actualizada (este archivo + CLAUDE, PRODUCT_SPEC, ARCHITECTURE,
+   DATA_MODEL, ROADMAP).
+
+**Decisiones de UX:** dos vistas móviles con estado dominante claro del día seleccionado;
+timeline siempre visible con pista pequeña; agenda semanal en lugar de cuadrícula estrecha;
+resumen inferior compacto; colores de categoría pastel y distintos.
+
+**Limitaciones:** sin gestos (mover = editor); **iPad/web aplazados** (solo iPhone); sin
+sincronización real de calendarios externos (Apple → `expo-calendar` + development build;
+Google/Outlook → OAuth y posiblemente backend). **Siguiente fase:** generación del plan
+semanal usando el `UserProfile` y la disponibilidad (`freeWindows`, `daySummary`).
+
 ## Fase 2 — Campos del onboarding + calendario interactivo
 
 **Parte 1 — Campos del onboarding**

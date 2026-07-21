@@ -39,6 +39,20 @@ Estado por fases. Esta entrega cubre la **Fase 0**.
 - [x] Introducción de primera vez tras el onboarding.
 - [x] Lógica pura de disponibilidad (huecos, ventanas libres) lista para el generador.
 
+## ✅ Fase 2.1 — Rediseño móvil del calendario (Día / Semana)
+
+- [x] Selector segmentado **Día / Semana** con persistencia de la vista, el día y la semana.
+- [x] Cabecera rediseñada (título + acciones, paginador de semana, botón **Hoy**, toggle).
+- [x] Selector de días responsive (los 7 caben sin scroll; "hoy" vs "seleccionado" claros).
+- [x] Vista Día: timeline siempre visible, pista pequeña de día vacío, hora actual con
+  etiqueta, barra de resumen compacta, bloques pulidos (ubicación, readOnly).
+- [x] **Vista Semana móvil**: agenda vertical de tarjetas por día + tarjeta de resumen.
+- [x] Menú de acciones ampliado (añadir, ajustes, reset dev) y ajustes con externos
+  "Próximamente".
+- [x] Modelo **preparado para calendarios externos** (`source`, `readOnly`, ids) + migración
+  v2; bloques externos de solo lectura no editables.
+- [x] iPad/web aplazados a propósito; arquitectura desacoplada del ancho.
+
 ## 🔜 Fase 3 — Generación del plan semanal
 
 - [ ] Generar `WeeklyPlan` (entrenamientos + comidas) a partir del `UserProfile` y la
@@ -62,8 +76,16 @@ Relojes inteligentes, compra online, planes familiares, retos y comunidad, integ
 con entrenadores. **Backend, pagos y sincronización en la nube** se evaluarán cuando el
 producto local esté maduro.
 
+**Calendarios externos (fase propia):** el modelo ya está preparado (`source`, `readOnly`,
+ids externos). La integración real requerirá: **Apple Calendar** → `expo-calendar` +
+*development build* (no cabe en Expo Go); **Google/Outlook** → OAuth y probablemente
+backend. Los eventos externos solo bloquearán disponibilidad (solo lectura), sin
+convertirse en actividades editables.
+
 ## Deuda técnica / pendientes conocidos
 
 - Tema oscuro preparado pero sin conmutador manual en la UI (sigue el sistema).
 - La capa `services` devuelve datos demo; falta el origen real.
 - Faltan iconos de app / splash definitivos de marca (se usan los placeholder de Expo).
+- **Gestos del calendario** (arrastrar bloques / selección multi-franja) e interfaces de
+  **iPad/web** pendientes; mover un bloque se hace ajustando la hora en el editor.

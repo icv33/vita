@@ -121,10 +121,24 @@ Calendario semanal interactivo donde el usuario indica cuándo trabaja, estudia,
 desplaza, come o no está disponible. Esta fase **solo** recopila la disponibilidad; la
 colocación automática de entrenamientos/comidas llega después.
 
-**Experiencia móvil** (no una cuadrícula semanal estrecha): selector horizontal de días
-arriba, **timeline vertical** del día seleccionado (07:00–23:00, franjas de 30 min), bloques
-coloreados por categoría, indicador de hora actual, resumen inferior (ocupadas/disponibles/
-próxima/nº bloques) y FAB para añadir. Se cambia de día tocando el selector.
+**Dos vistas móviles (Día / Semana)** con un selector segmentado en la cabecera; la vista
+elegida se **persiste** (valor inicial: Día). La cabecera se distribuye en filas (título +
+acciones, paginador de semana + botón **Hoy**, y el toggle) para no saturar.
+
+- **Vista Día:** selector semanal responsive (los 7 días caben sin scroll horizontal; "hoy"
+  y "seleccionado" no compiten), **timeline vertical** (07:00–23:00, franjas de 30 min),
+  bloques por categoría, indicador de hora actual con etiqueta, barra de resumen compacta
+  (ocupado/libre/próxima/nº) y FAB. Día vacío → el timeline permanece y aparece una **pista
+  pequeña y cerrable** (nunca una pantalla vacía con botón central duplicado).
+- **Vista Semana (agenda móvil):** lista **vertical** de una tarjeta por día (no una
+  cuadrícula de 7 columnas de escritorio); cada tarjeta muestra cabecera (día/número/hoy),
+  ocupado/libre, actividades compactas ordenadas, mayor hueco libre y un botón de añadir.
+  Tocar la cabecera abre ese día en la vista Día; una tarjeta de resumen semanal cierra la
+  lista. Semana vacía → se muestran los 7 días (todos disponibles) con una nota breve.
+
+**Preferencias de interfaz** (persistidas en `CalendarMeta`): vista día/semana, día
+seleccionado y semana mostrada (`lastWeekOffset`). El botón **Hoy** vuelve a la semana
+actual y selecciona hoy manteniendo la vista.
 
 **Crear/editar:** tocar una franja vacía (usa esa hora, propone 1 h) o el FAB abre el
 editor modal; tocar un bloque lo edita. El editor valida en vivo (ventana 07:00–23:00,
@@ -139,9 +153,21 @@ confirmación.
 lógica pura (`utils/calendar.ts`), validación (`validation/calendar.ts`), persistencia con
 migración (`storage/calendar-storage.ts`, `storage/calendar-migrations.ts`), estado
 (`store/calendar-store.ts`, escrituras inmediatas por acción discreta) y componentes
-(`components/calendar/`: `WeekDaySelector`, `DayTimeline`, `TimeGrid`, `ActivityBlockCard`,
-`CurrentTimeIndicator`, `ActivityEditor`, `CalendarActions`, `DayPickerSheet`, `Sheet`,
-`WeeklySummary`, `EmptyScheduleState`).
+(`components/calendar/`: `CalendarHeader`, `CalendarViewToggle`, `WeekDaySelector`,
+`DayTimeline`, `TimeGrid`, `ActivityBlockCard`, `CompactActivityBlock`, `CurrentTimeIndicator`,
+`DayEmptyHint`, `DailySummaryBar`, `MobileWeekView`, `WeekDayAgendaCard`, `ActivityEditor`,
+`CalendarActions`, `CalendarSettingsSheet`, `DayPickerSheet`, `Sheet`, `WeeklySummary`,
+`WeeklySummaryCard`, `EmptyScheduleState`). La geometría del timeline vive en
+`components/calendar/layout.ts` (conversión minutos↔píxeles).
+
+**Fuentes externas (preparación, sin sincronización):** el modelo incluye `source`
+(`vita`/`device`/`google`/`outlook`), `readOnly` e ids externos. Los bloques de Vita llevan
+`source: 'vita'` y son editables; los futuros externos serán `readOnly` (solo bloquean
+disponibilidad, se muestran como detalle, no se editan/eliminan). El menú de ajustes muestra
+"Conectar un calendario externo" como opción **deshabilitada ("Próximamente")**. La
+integración real (Apple `expo-calendar` + development build; Google/Outlook con OAuth y
+posiblemente backend) queda para una fase posterior; **no** se han añadido credenciales ni
+dependencias nativas.
 
 **Primera vez:** al terminar el onboarding y pulsar "Crear mi semana", si el calendario aún
 no está configurado se muestra `calendar-intro` ("Configurar mi horario" / "Lo haré más
@@ -159,6 +185,14 @@ layout.ts`) queda preparada para añadir gestos con `react-native-gesture-handle
 **Semana:** el horario es una **semana tipo recurrente** (`isRecurringWeekly`). El paginador
 de semana de la cabecera cambia solo las fechas mostradas; los bloques se repiten. Por eso
 no hay "duplicar semana": no aplica a una única semana recurrente.
+
+**iPad y web aplazados (a propósito):** esta fase optimiza **solo iPhone**. No se han
+construido barra lateral de escritorio, cuadrícula semanal de 7 columnas ni paneles de
+iPad, para no mantener layouts que aún no se usan. La arquitectura queda preparada: la
+lógica de disponibilidad es pura e independiente del layout, los componentes están
+desacoplados y evitan anchuras fijas innecesarias (flexbox), y las vistas Día/Semana se
+componen desde piezas reutilizables. Añadir composiciones para tablet/escritorio en el
+futuro no requerirá tocar dominio, store ni cálculos.
 
 ## Sistema de diseño (`theme/`)
 

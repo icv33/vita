@@ -84,17 +84,27 @@ Alias de importación: **`@/`** apunta a la raíz del proyecto (p. ej.
 
 - Los tiempos se guardan como **minutos desde medianoche** (`startMinutes`/`endMinutes`),
   no como cadenas. La ventana visible es **07:00–23:00**, en franjas de 30 min.
-- Toda la aritmética (orden, solapamientos, huecos, disponibilidad) vive en
-  `utils/calendar.ts` (pura, testeada); la validación en `validation/calendar.ts`.
+- Toda la aritmética (orden, solapamientos, huecos, disponibilidad, `daySummary`,
+  `weekTotals`) vive en `utils/calendar.ts` (pura, testeada); validación en
+  `validation/calendar.ts`. **No dupliques cálculos** en componentes.
+- **Dos vistas móviles** (Día / Semana) con toggle segmentado. La vista, el día
+  seleccionado y la semana mostrada se **persisten** en `CalendarMeta` (valor inicial: Día).
 - `calendar-store` persiste de forma inmediata por acción discreta (no por pulsación);
-  el horario tiene su **propio reset** y el reinicio completo también lo limpia.
-- Es una **semana tipo recurrente**: el paginador de semana solo cambia las fechas
-  mostradas. **Gestos** (arrastrar bloques / selección multi-franja) no implementados aún:
-  mover = ajustar hora en el editor; se documenta como limitación conocida.
+  hay reset de **solo preferencias** (`resetVisualPreferences`), reset de **calendario**
+  (`resetCalendar`) y el reinicio completo también lo limpia.
+- **Fuentes externas (preparación, sin sync):** `ActivityBlock.source`
+  (`vita|device|google|outlook`), `readOnly` e ids externos. Los bloques de Vita son
+  `source: 'vita'` y editables; los externos serán `readOnly` (no se editan/eliminan, solo
+  bloquean disponibilidad). No añadas OAuth, tokens ni dependencias nativas todavía.
+- Es una **semana tipo recurrente**: el paginador solo cambia las fechas mostradas.
+  **Gestos** (arrastrar bloques / selección multi-franja) no implementados: mover = ajustar
+  hora en el editor. **iPad/web aplazados**: optimizar solo iPhone, sin layouts de escritorio.
 - **Categorías** en `constants/calendar.ts` (id, label, icono, color, fondo, descripción).
 
 ## Alcance de esta fase
 
-Implementados el **onboarding completo** y el **calendario interactivo de disponibilidad**.
-**Sin** implementar todavía: generación de dietas/entrenamientos/objetivos, backend, pagos,
-APIs externas ni funciones médicas. Ver `docs/ROADMAP.md` e `docs/IMPLEMENTATION_PLAN.md`.
+Implementados el **onboarding completo** y el **calendario interactivo de disponibilidad**
+con **vistas Día y Semana** para móvil y el modelo preparado para calendarios externos.
+**Sin** implementar todavía: sincronización real de calendarios externos, generación de
+dietas/entrenamientos/objetivos, backend, pagos ni funciones médicas. Ver `docs/ROADMAP.md`
+e `docs/IMPLEMENTATION_PLAN.md`.

@@ -76,20 +76,32 @@ detectar solapamientos y calcular huecos sean comparaciones de enteros.
   `constants/calendar.ts` (`ACTIVITY_CATEGORIES`): id estable, `label`, `icon`, `color`,
   `bg` (relleno translúcido) y `description`.
 - `ActivityLocation` — `home | university | work | gym | outdoor | other`.
+- `ActivitySource` — `vita | device | google | outlook`. Hoy solo se usa `vita`; el resto
+  se declaran para **preparar** futuras integraciones sin otra migración.
 - `ActivityBlock` — `id`, `dayOfWeek`, `startMinutes`, `endMinutes`, `category`, `title?`,
-  `location?`, `notes?`, `isRecurringWeekly`, `createdAt`, `updatedAt`.
-- `WeekSchedule` — `schemaVersion`, `weekStartsOn` (`monday`), `timezone`, `blocks`,
+  `location?`, `notes?`, `isRecurringWeekly`, **`source`**, `readOnly?`, `externalEventId?`,
+  `externalCalendarId?`, `lastSyncedAt?`, `createdAt`, `updatedAt`.
+- `WeekSchedule` — `schemaVersion` (**v2**), `weekStartsOn` (`monday`), `timezone`, `blocks`,
   `createdAt`, `updatedAt`.
-- `CalendarMeta` — `schemaVersion`, `setupCompleted` (intro vista), `lastSelectedDay?`.
+- `CalendarView` — `day | week`.
+- `CalendarMeta` — `schemaVersion` (**v2**), `setupCompleted` (intro vista), **`view`**
+  (día/semana), `lastSelectedDay?`, **`lastWeekOffset`** (semana mostrada, 0 = esta semana).
 
 **Ventana visible y franjas:** 07:00–23:00, franjas de 30 min, duración mínima 30 min
 (`constants/calendar.ts`). **Campos derivados no se guardan**: duración, huecos libres,
 tiempo ocupado/disponible y distribución por categoría se calculan en `utils/calendar.ts`.
 
+**Fuentes externas (preparación):** todos los bloques creados en Vita reciben
+`source: 'vita'` y son editables. Los futuros eventos externos serán `readOnly` y solo
+**bloquearán disponibilidad**; nunca se convertirán en actividades editables. El store
+**rechaza** editar/eliminar/vaciar bloques `readOnly`. **No** hay integración real, OAuth,
+tokens ni permisos nativos en esta fase.
+
 **Disponibilidad (`utils/calendar.ts`):** `sortBlocks`, `overlaps` (los bloques
 consecutivos que se tocan **no** solapan), `mergeIntervals`, `freeGaps`, `freeWindows`,
 `longestFreeWindow`, `busyMinutes`/`freeMinutes`, `categoryDistribution`,
-`daysByAvailability`. Serán la entrada del futuro generador de planes.
+`daysByAvailability`, `daySummary`, `weekTotals`, `isBlockEditable`. Serán la entrada del
+futuro generador de planes.
 
 ## Plan semanal (`types/plan.ts`)
 
@@ -122,7 +134,10 @@ El acceso pasa siempre por `storage/` (wrapper tipado, fail-soft con JSON):
 propósito (estado temporal vs. definitivo). `schemaVersion` en todos permite migraciones.
 
 El calendario aplica una **migración de esquema** al leer (`storage/calendar-migrations.ts`,
-pura y testeada): versión actual → paso directo; formato legacy v0 (`weekStart` + horas
-`HH:mm` + `kind`) → v1 (minutos + `category`); datos desconocidos → `null`. El calendario
-tiene su **propio reset** (`useCalendarStore.resetCalendar`), y el **reinicio completo**
+pura y testeada): normaliza cualquier versión a la actual (**v2**) añadiendo
+`source: 'vita'` a los bloques que no lo tuvieran; el formato legacy v0 (`weekStart` +
+`HH:mm` + `kind`) se convierte a bloques en minutos con `category`; datos desconocidos →
+`null`. La meta migra a v2 con valores por defecto `view: 'day'` y `lastWeekOffset: 0`.
+El calendario tiene su **propio reset** (`useCalendarStore.resetCalendar`) y un reset de
+**solo preferencias visuales** (`resetVisualPreferences`); el **reinicio completo**
 (`resetEntireOnboardingFlow`) también lo limpia para simular una instalación nueva.

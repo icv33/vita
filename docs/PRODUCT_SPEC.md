@@ -55,14 +55,18 @@ el **calendario interactivo de disponibilidad** (funcionalidad 2).
   resumen editable y conversión a un perfil confirmado. Inicio muestra datos reales del
   perfil y Progreso muestra estados vacíos cuidados hasta que exista un plan.
 - **Calendario:** el usuario indica cuándo trabaja, estudia, se desplaza, come o no está
-  disponible sobre un timeline diario (07:00–23:00, franjas de 30 min): crear/editar/eliminar
-  bloques con validación y conflictos, categorías con color, copiar/repetir horarios, resumen
-  semanal de disponibilidad y una introducción de primera vez tras el onboarding. La
+  disponible, con **dos vistas móviles**: **Día** (timeline 07:00–23:00 en franjas de 30 min)
+  y **Semana** (agenda vertical, una tarjeta por día). Crear/editar/eliminar bloques con
+  validación y conflictos, categorías con color, mover por hora, copiar/repetir horarios,
+  resumen semanal de disponibilidad, botón Hoy e introducción de primera vez. La vista, el día
+  y la semana elegidos se recuerdan. El modelo queda **preparado para calendarios externos**
+  (Apple/Google/Outlook) como bloques de solo lectura, sin sincronización real todavía. La
   disponibilidad calculada alimentará al futuro generador de planes.
 
-La **generación de planes** (entrenamientos, dietas, objetivos de calorías/macros, listas de
-la compra) y el **análisis** llegan en fases posteriores (ver `ROADMAP.md`). Las estimaciones
-energéticas aún **no** se calculan.
+La **integración real de calendarios externos**, la **generación de planes** (entrenamientos,
+dietas, objetivos de calorías/macros, listas de la compra) y el **análisis** llegan en fases
+posteriores (ver `ROADMAP.md`). Las estimaciones energéticas aún **no** se calculan; las
+interfaces específicas de **iPad y web** quedan aplazadas (esta fase optimiza iPhone).
 
 ## No objetivos de esta fase
 
